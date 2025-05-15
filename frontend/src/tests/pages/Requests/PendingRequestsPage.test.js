@@ -38,6 +38,6 @@ describe("PendingRequestsPage tests", () => {
     );
 
     // assert
-    await screen.findByText("Pending Requests page not yet implemented");
+    await screen.findByText("Pending Requests");
   });
 });
