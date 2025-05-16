@@ -47,7 +47,7 @@ describe("PendingRequestsPage tests", () => {
     await screen.findByText("Pending Requests");
   });
 
-  test("Renders completed and denied requests for professor", async () => {
+  test("Renders pending requests for professor", async () => {
     axiosMock
       .onGet("/api/currentUser")
       .reply(200, apiCurrentUserFixtures.professorUser);
@@ -86,10 +86,10 @@ describe("PendingRequestsPage tests", () => {
     );
     expect(
       statusCells.some((cell) => cell.textContent === "COMPLETED"),
-    ).toBeTruthy();
+    ).toBeFalsy();
     expect(
       statusCells.some((cell) => cell.textContent === "DENIED"),
-    ).toBeTruthy();
+    ).toBeFalsy();
     expect(
       statusCells.some((cell) => cell.textContent === "PENDING"),
     ).toBeTruthy();
@@ -165,10 +165,10 @@ describe("PendingRequestsPage tests", () => {
     );
     expect(
       statusCells.some((cell) => cell.textContent === "COMPLETED"),
-    ).toBeTruthy();
+    ).toBeFalsy();
     expect(
       statusCells.some((cell) => cell.textContent === "DENIED"),
-    ).toBeTruthy();
+    ).toBeFalsy();
     expect(
       statusCells.some((cell) => cell.textContent === "PENDING"),
     ).toBeTruthy();

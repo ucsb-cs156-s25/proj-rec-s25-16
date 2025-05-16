@@ -26,13 +26,17 @@ export default function PendingRequestsPage() {
     [],
   );
 
+  const pendingRequests = requests.filter(
+    (request) => request.status === "PENDING",
+  );
+
   return (
     <BasicLayout>
       <div className="pt-2">
         <h1>Pending Requests</h1>
         <div data-testid="RecommendationRequestTable">
           <RecommendationRequestTable
-            requests={requests}
+            requests={pendingRequests}
             currentUser={currentUser}
           />
         </div>

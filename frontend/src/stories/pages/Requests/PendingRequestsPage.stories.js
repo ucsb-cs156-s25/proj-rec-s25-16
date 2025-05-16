@@ -27,8 +27,8 @@ Empty.parameters = {
   ],
 };
 
-export const ThreeRequests = Template.bind({});
-ThreeRequests.parameters = {
+export const PendingRequests = Template.bind({});
+PendingRequests.parameters = {
   msw: [
     http.get("/api/currentUser", () => {
       return HttpResponse.json(apiCurrentUserFixtures.professorUser);
@@ -37,7 +37,9 @@ ThreeRequests.parameters = {
       return HttpResponse.json(systemInfoFixtures.showingNeither);
     }),
     http.get("/api/recommendationrequest/professor/all", () => {
-      return HttpResponse.json(recommendationRequestFixtures.mixedRequests);
+      return HttpResponse.json([
+        recommendationRequestFixtures.mixedRequests[2],
+      ]);
     }),
   ],
 };
