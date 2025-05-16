@@ -4,7 +4,6 @@ import RecommendationRequestTable from "main/components/RecommendationRequest/Re
 import { useCurrentUser, hasRole } from "main/utils/currentUser";
 
 export default function PendingRequestsPage() {
-  // Stryker disable all : placeholder for future implementation
   const { data: currentUser } = useCurrentUser();
 
   const apiEndpoint = hasRole(currentUser, "ROLE_PROFESSOR")
