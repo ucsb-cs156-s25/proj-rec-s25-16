@@ -17,10 +17,10 @@ export default function PendingRequestsPage() {
   } = useBackend(
     // Stryker disable next-line all : don't test internal caching of React Query
     [apiEndpoint],
-    { 
+    {
       // Stryker disable next-line all : GET is the default, so mutating this to "" doesn't introduce a bug
-      method: "GET", 
-      url: apiEndpoint 
+      method: "GET",
+      url: apiEndpoint,
     },
     // Stryker disable next-line all : don't test default value of empty list
     [],

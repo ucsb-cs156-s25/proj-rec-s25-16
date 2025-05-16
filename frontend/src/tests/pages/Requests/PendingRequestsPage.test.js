@@ -29,7 +29,6 @@ describe("PendingRequestsPage tests", () => {
     axiosMock.resetHistory();
   });
 
-
   test("Renders expected content", async () => {
     // arrange
 
@@ -124,7 +123,7 @@ describe("PendingRequestsPage tests", () => {
       screen.getByTestId("RecommendationRequestTable"),
     ).toBeInTheDocument();
   });
-  
+
   test("Renders pending requests for student", async () => {
     axiosMock
       .onGet("/api/currentUser")
