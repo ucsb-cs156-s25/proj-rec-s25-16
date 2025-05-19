@@ -64,6 +64,8 @@ describe("CompletedRequestsPage tests", () => {
     expect(
       statusCells.every((cell) => cell.textContent !== "PENDING"),
     ).toBeTruthy();
+    const status = screen.getByTestId(`status-span-${6}`);
+    expect(status).toBeInTheDocument();
   });
 
   test("Renders empty table when no completed requests", async () => {

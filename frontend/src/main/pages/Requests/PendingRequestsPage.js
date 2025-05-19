@@ -38,6 +38,7 @@ export default function PendingRequestsPage() {
           <RecommendationRequestTable
             requests={pendingRequests}
             currentUser={currentUser}
+            onPendingRequests={true}
           />
         </div>
       </div>

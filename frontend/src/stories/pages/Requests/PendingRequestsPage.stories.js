@@ -27,14 +27,41 @@ Empty.parameters = {
   ],
 };
 
-export const PendingRequests = Template.bind({});
-PendingRequests.parameters = {
+export const PendingRequestsProfessorUser = Template.bind({});
+PendingRequestsProfessorUser.parameters = {
   msw: [
     http.get("/api/currentUser", () => {
       return HttpResponse.json(apiCurrentUserFixtures.professorUser);
     }),
     http.get("/api/systemInfo", () => {
       return HttpResponse.json(systemInfoFixtures.showingNeither);
+    }),
+    http.get("/api/recommendationrequest/professor/all", () => {
+      return HttpResponse.json([
+        recommendationRequestFixtures.mixedRequests[2],
+      ]);
+    }),
+    http.get("/api/recommendationrequest/requester/all", () => {
+      return HttpResponse.json([
+        recommendationRequestFixtures.mixedRequests[2],
+      ]);
+    }),
+  ],
+};
+
+export const PendingRequestsStudentUser = Template.bind({});
+PendingRequestsStudentUser.parameters = {
+  msw: [
+    http.get("/api/currentUser", () => {
+      return HttpResponse.json(apiCurrentUserFixtures.studentUser);
+    }),
+    http.get("/api/systemInfo", () => {
+      return HttpResponse.json(systemInfoFixtures.showingNeither);
+    }),
+    http.get("/api/recommendationrequest/requester/all", () => {
+      return HttpResponse.json([
+        recommendationRequestFixtures.mixedRequests[2],
+      ]);
     }),
     http.get("/api/recommendationrequest/professor/all", () => {
       return HttpResponse.json([
