@@ -132,8 +132,14 @@ public class RecommendationRequestController extends ApiController {
 
         recommendationRequest.setStatus(incoming.getStatus());
 
-        recommendationRequestRepository.save(recommendationRequest);
+       if ("COMPLETED".equalsIgnoreCase(incoming.getStatus())) {
+            recommendationRequest.setCompletionDate(LocalDateTime.now());
+        } 
+        else {
+            recommendationRequest.setCompletionDate(null);
+        }
 
+        recommendationRequestRepository.save(recommendationRequest);
         return recommendationRequest;
     }
 
