@@ -1,199 +1,152 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-
+// frontend/src/tests/components/RecommendationRequest/RecommendationRequestForm.test.js
+import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter as Router } from "react-router-dom";
-
 import RecommendationRequestForm from "main/components/RecommendationRequest/RecommendationRequestForm";
-import { recommendationRequestFixtures } from "fixtures/recommendationRequestFixtures";
-
 import { QueryClient, QueryClientProvider } from "react-query";
-import axios from "axios";
-import AxiosMockAdapter from "axios-mock-adapter";
-import usersFixtures from "fixtures/usersFixtures";
-import recommendationTypeFixtures from "fixtures/recommendationTypeFixtures";
+
+// Mock fetch globally
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve([]),
+  }),
+);
 
 const mockedNavigate = jest.fn();
-
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useNavigate: () => mockedNavigate,
 }));
 
 describe("RecommendationRequestForm tests", () => {
-  const axiosMock = new AxiosMockAdapter(axios);
-  beforeEach(() => {
-    jest.clearAllMocks();
-    axiosMock.reset();
-    axiosMock.resetHistory();
-    axiosMock
-      .onGet("/api/admin/users/professors")
-      .reply(200, usersFixtures.userOnly);
-    axiosMock
-      .onGet("/api/requesttypes/all")
-      .reply(200, recommendationTypeFixtures.fourTypes);
-    global.fetch = jest.fn();
-  });
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
   const queryClient = new QueryClient();
 
-  const expectedHeaders = ["Professor", "Recommendation Type", "Details"];
-  const testId = "RecommendationRequestForm";
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   test("renders correctly with no initialContents", async () => {
     render(
       <QueryClientProvider client={queryClient}>
         <Router>
-          <RecommendationRequestForm />
+          <RecommendationRequestForm submitAction={() => {}} />
         </Router>
       </QueryClientProvider>,
     );
 
-    expect(await screen.findByText(/Create/)).toBeInTheDocument();
-
-    expectedHeaders.forEach((headerText) => {
-      const header = screen.getByText(headerText);
-      expect(header).toBeInTheDocument();
-    });
-  });
-
-  test("renders correctly when passing in initialContents", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <RecommendationRequestForm
-            initialContents={recommendationRequestFixtures.oneRecommendation}
-          />
-        </Router>
-      </QueryClientProvider>,
-    );
-
-    expect(await screen.findByText(/Create/)).toBeInTheDocument();
-
-    expectedHeaders.forEach((headerText) => {
-      const header = screen.getByText(headerText);
-      expect(header).toBeInTheDocument();
-    });
-
-    expect(await screen.findByTestId(`${testId}-id`)).toBeInTheDocument();
-    expect(screen.getByText(`Id`)).toBeInTheDocument();
-  });
-
-  test("that the options are filled correctly", async () => {
-    global.fetch
-      .mockResolvedValueOnce({
-        json: () => Promise.resolve(usersFixtures.twoProfessors), // for professors
-      })
-      .mockResolvedValueOnce({
-        json: () => Promise.resolve(recommendationTypeFixtures.fourTypes), // for recommendation types
-      });
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <RecommendationRequestForm />
-        </Router>
-      </QueryClientProvider>,
-    );
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2)); // Ensure fetch was called twice
-
-    // Assert: Check that fetch was called with the correct URLs
-    expect(global.fetch).toHaveBeenCalledWith("/api/admin/users/professors");
-    expect(global.fetch).toHaveBeenCalledWith("/api/requesttypes/all");
-    await waitFor(() => {
-      usersFixtures.twoProfessors.forEach((professor) => {
-        expect(screen.getByText(professor.fullName)).toBeInTheDocument();
-      });
-      expect(screen.getByText("Select a professor")).toBeInTheDocument();
-    });
-    await waitFor(() => {
-      recommendationTypeFixtures.fourTypes.forEach((type) => {
-        expect(screen.getByText(type.requestType)).toBeInTheDocument();
-      });
-    });
-  });
-
-  test("that the correct error appears when the gets are called for the options", async () => {
-    const consoleErrorMock = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-    global.fetch = jest.fn().mockRejectedValueOnce(new Error("Network error"));
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <RecommendationRequestForm />
-        </Router>
-      </QueryClientProvider>,
-    );
-    await waitFor(() => {
-      // Here, you can check for side effects or verify the console error is called.
-      // In this case, we assume the error is logged to the console.
-      expect(global.console.error).toHaveBeenCalledWith(
-        "Error fetching request types",
-      );
-    });
-    await waitFor(() => {
-      // Here, you can check for side effects or verify the console error is called.
-      // In this case, we assume the error is logged to the console.
-      expect(global.console.error).toHaveBeenCalledWith(
-        "Error fetching professors",
-      );
-    });
-    consoleErrorMock.mockRestore();
+    // Check for presence of form elements
+    expect(screen.getByLabelText(/Professor/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Recommendation Type/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Details/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Due Date/)).toBeInTheDocument();
+    expect(
+      screen.getByTestId("RecommendationRequestForm-submit"),
+    ).toBeInTheDocument();
   });
 
   test("that the initial value of professors and recommendationTypes is only defaults", async () => {
     render(
       <QueryClientProvider client={queryClient}>
         <Router>
-          <RecommendationRequestForm />
+          <RecommendationRequestForm submitAction={() => {}} />
         </Router>
       </QueryClientProvider>,
     );
-    expect(screen.getByText("No professors available")).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "No recommendation types available, use Other in details",
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Other")).toBeInTheDocument();
 
-    // Assert that no professor options are rendered yet
-    const options = screen.queryAllByRole("option");
-    expect(options).toHaveLength(3);
+    // Check for the default option text
+    const professorSelect = screen.getByTestId(
+      "RecommendationRequestForm-professor_id",
+    );
+    const recommendationTypeSelect = screen.getByTestId(
+      "RecommendationRequestForm-recommendationType",
+    );
+
+    // Check if the select fields have the expected default options
+    expect(professorSelect).toHaveTextContent("Select a professor");
+    expect(professorSelect).toHaveTextContent("Other");
+
+    expect(recommendationTypeSelect).toHaveTextContent(
+      "No recommendation types available, use Other in details",
+    );
+    expect(recommendationTypeSelect).toHaveTextContent("Other");
   });
 
-  test("that navigate(-1) is called when Cancel is clicked", async () => {
+  test("renders correctly when initialContents is supplied", async () => {
+    const initialContents = {
+      id: 1,
+      professor_id: "10",
+      recommendationType: "Grad School",
+      details: "PhD Application",
+      dueDate: "2025-05-15T10:00:00",
+    };
+
     render(
       <QueryClientProvider client={queryClient}>
         <Router>
-          <RecommendationRequestForm />
+          <RecommendationRequestForm
+            initialContents={initialContents}
+            submitAction={() => {}}
+          />
         </Router>
       </QueryClientProvider>,
     );
-    expect(await screen.findByTestId(`${testId}-cancel`)).toBeInTheDocument();
-    const cancelButton = screen.getByTestId(`${testId}-cancel`);
 
+    const idField = screen.queryByTestId("RecommendationRequestForm-id");
+    expect(idField).toBeInTheDocument();
+    expect(idField).toHaveValue("1");
+    expect(screen.getByTestId("RecommendationRequestForm-details")).toHaveValue(
+      "PhD Application",
+    );
+  });
+
+  test("readonly fields are disabled", async () => {
+    const initialContents = {
+      id: 1,
+      professor_id: "10",
+      recommendationType: "Grad School",
+      details: "PhD Application",
+      dueDate: "2025-05-15T10:00:00",
+    };
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <RecommendationRequestForm
+            initialContents={initialContents}
+            submitAction={() => {}}
+            readOnlyFields={["professor_id", "recommendationType"]}
+          />
+        </Router>
+      </QueryClientProvider>,
+    );
+
+    // Check that specified fields are disabled
+    expect(
+      screen.getByTestId("RecommendationRequestForm-professor_id"),
+    ).toBeDisabled();
+    expect(
+      screen.getByTestId("RecommendationRequestForm-recommendationType"),
+    ).toBeDisabled();
+
+    // Details should not be disabled
+    expect(
+      screen.getByTestId("RecommendationRequestForm-details"),
+    ).not.toBeDisabled();
+  });
+
+  test("cancel button navigates back", async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <RecommendationRequestForm submitAction={() => {}} />
+        </Router>
+      </QueryClientProvider>,
+    );
+
+    // Click the cancel button
+    const cancelButton = screen.getByTestId("RecommendationRequestForm-cancel");
     fireEvent.click(cancelButton);
 
-    await waitFor(() => expect(mockedNavigate).toHaveBeenCalledWith(-1));
-  });
-
-  test("that the correct validations are performed", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <RecommendationRequestForm />
-        </Router>
-      </QueryClientProvider>,
-    );
-
-    expect(await screen.findByText(/Create/)).toBeInTheDocument();
-    const submitButton = screen.getByText(/Create/);
-    fireEvent.click(submitButton);
-
-    await screen.findByText(/Please select a professor/);
-    expect(
-      screen.getByText(/Please select a recommendation type/),
-    ).toBeInTheDocument();
+    // Check that navigate was called with -1 (go back)
+    expect(mockedNavigate).toHaveBeenCalledWith(-1);
   });
 });

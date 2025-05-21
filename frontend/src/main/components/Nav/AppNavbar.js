@@ -43,9 +43,7 @@ export default function AppNavbar({
             )}
           </Nav>
 
-          <>
-            {/* be sure that each NavDropdown has a unique id and data-testid  */}
-          </>
+          <>{}</>
 
           <Navbar.Collapse className="justify-content-between">
             <Nav className="mr-auto">
@@ -59,8 +57,17 @@ export default function AppNavbar({
                 </NavDropdown>
               )}
               {(hasRole(currentUser, "ROLE_PROFESSOR") ||
-                hasRole(currentUser, "ROLE_STUDENT")) && (
+                hasRole(currentUser, "ROLE_STUDENT") ||
+                hasRole(currentUser, "ROLE_ADMIN")) && (
                 <>
+                  {}
+                  <Nav.Link
+                    as={Link}
+                    to="/student/profile"
+                    data-testid="nav-student-profile"
+                  >
+                    My Requests
+                  </Nav.Link>
                   <Nav.Link as={Link} to="/requests/pending">
                     Pending Requests
                   </Nav.Link>

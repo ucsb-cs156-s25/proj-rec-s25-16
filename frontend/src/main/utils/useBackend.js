@@ -2,29 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// example
-//  queryKey ["/api/users/all"] for "api/users/all"
-//  queryKey ["/api/users","4"]  for "/api/users?id=4"
-
-// For axiosParameters
-//
-// {
-//     method: 'post',
-//     url: '/user/12345',
-//     data: {
-//       firstName: 'Fred',
-//       lastName: 'Flintstone'
-//     }
-//  }
-//
-
-// GET Example:
-// useBackend(
-//     ["/api/admin/users"],
-//     { method: "GET", url: "/api/admin/users" },
-//     []
-// );
-
 export function useBackend(queryKey, axiosParameters, initialData) {
   return useQuery(
     queryKey,
@@ -44,9 +21,6 @@ export function useBackend(queryKey, axiosParameters, initialData) {
     },
   );
 }
-
-// const wrappedParams = async (params) =>
-//   await ( await axios(params)).data;
 
 const reportAxiosError = (error) => {
   console.error("Axios Error:", error);
@@ -76,11 +50,9 @@ export function useBackendMutation(
     onError: (data) => {
       toast(`${data}`);
     },
-    // Stryker disable all: Not sure how to set up the complex behavior needed to test this
     onSettled: () => {
       if (queryKey !== null) queryClient.invalidateQueries(queryKey);
     },
-    // Stryker restore all
     retry: false,
     ...useMutationParams,
   });
