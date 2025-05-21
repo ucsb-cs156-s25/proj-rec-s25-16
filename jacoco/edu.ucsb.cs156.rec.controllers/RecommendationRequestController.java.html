@@ -44,6 +44,17 @@ import lombok.extern.slf4j.Slf4j;
     RequestTypeRepository requestTypeRepository;
 
     /**
+     * This method returns a list of all Recommendation Requests requested
+     * @return a list of all Recommendation Requests requested by all students
+     */
+    @Operation(summary = &quot;An admin can list all Recommendation Requests&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @DeleteMapping(&quot;/admin/all&quot;)
+    public Iterable&lt;RecommendationRequest&gt; getAllRecommendationRequests() {
+<span class="nc" id="L54">        return recommendationRequestRepository.findAll();</span>
+    }
+
+    /**
      * Any admin can delete a RecommendationRequest
      * 
      * @param id the id of the RecommendationRequest to delete
@@ -53,14 +64,14 @@ import lombok.extern.slf4j.Slf4j;
     @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
     @DeleteMapping(&quot;/admin&quot;)
     public Object deleteRecommendationRequestAsAdmin(@Parameter(name = &quot;id&quot;) @RequestParam Long id) {
-<span class="fc" id="L56">        RecommendationRequest recommendationRequest = </span>
+<span class="fc" id="L67">        RecommendationRequest recommendationRequest = </span>
         recommendationRequestRepository
-<span class="fc" id="L58">            .findById(id)</span>
-<span class="fc" id="L59">            .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
+<span class="fc" id="L69">            .findById(id)</span>
+<span class="fc" id="L70">            .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
 
-<span class="fc" id="L61">        recommendationRequestRepository.delete(recommendationRequest);</span>
+<span class="fc" id="L72">        recommendationRequestRepository.delete(recommendationRequest);</span>
 
-<span class="fc" id="L63">        return genericMessage(&quot;RecommendationRequest with id %s deleted&quot;.formatted(id));</span>
+<span class="fc" id="L74">        return genericMessage(&quot;RecommendationRequest with id %s deleted&quot;.formatted(id));</span>
     }
 
     /**
@@ -73,15 +84,15 @@ import lombok.extern.slf4j.Slf4j;
     @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
     @DeleteMapping(&quot;&quot;)
     public Object deleteRecommendationRequestAsUser(@Parameter(name = &quot;id&quot;) @RequestParam Long id) {
-<span class="fc" id="L76">        User currentUser = getCurrentUser().getUser(); </span>
-<span class="fc" id="L77">        RecommendationRequest recommendationRequest = </span>
+<span class="fc" id="L87">        User currentUser = getCurrentUser().getUser(); </span>
+<span class="fc" id="L88">        RecommendationRequest recommendationRequest = </span>
         recommendationRequestRepository
-<span class="fc" id="L79">            .findByIdAndRequester(id, currentUser)</span>
-<span class="fc" id="L80">            .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
+<span class="fc" id="L90">            .findByIdAndRequester(id, currentUser)</span>
+<span class="fc" id="L91">            .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
 
-<span class="fc" id="L82">        recommendationRequestRepository.delete(recommendationRequest);</span>
+<span class="fc" id="L93">        recommendationRequestRepository.delete(recommendationRequest);</span>
 
-<span class="fc" id="L84">        return genericMessage(&quot;RecommendationRequest with id %s deleted&quot;.formatted(id));</span>
+<span class="fc" id="L95">        return genericMessage(&quot;RecommendationRequest with id %s deleted&quot;.formatted(id));</span>
     }
 
     /**
@@ -98,17 +109,17 @@ import lombok.extern.slf4j.Slf4j;
         @Parameter(name = &quot;id&quot;) @RequestParam Long id,
         @RequestBody @Valid RecommendationRequest incoming) {
 
-<span class="fc" id="L101">        User currentUser = getCurrentUser().getUser(); </span>
-<span class="fc" id="L102">        RecommendationRequest recommendationRequest = </span>
+<span class="fc" id="L112">        User currentUser = getCurrentUser().getUser(); </span>
+<span class="fc" id="L113">        RecommendationRequest recommendationRequest = </span>
             recommendationRequestRepository
-<span class="fc" id="L104">                .findByIdAndRequester(id, currentUser)</span>
-<span class="fc" id="L105">                .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
+<span class="fc" id="L115">                .findByIdAndRequester(id, currentUser)</span>
+<span class="fc" id="L116">                .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
 
-<span class="fc" id="L107">        recommendationRequest.setDetails(incoming.getDetails());</span>
+<span class="fc" id="L118">        recommendationRequest.setDetails(incoming.getDetails());</span>
 
-<span class="fc" id="L109">        recommendationRequestRepository.save(recommendationRequest);</span>
+<span class="fc" id="L120">        recommendationRequestRepository.save(recommendationRequest);</span>
            
-<span class="fc" id="L111">        return recommendationRequest;    </span>
+<span class="fc" id="L122">        return recommendationRequest;    </span>
     }
 
      /**
@@ -125,20 +136,20 @@ import lombok.extern.slf4j.Slf4j;
         @Parameter(name = &quot;id&quot;) @RequestParam Long id,
         @RequestBody @Valid RecommendationRequest incoming) {
 
-<span class="fc" id="L128">        RecommendationRequest recommendationRequest = </span>
+<span class="fc" id="L139">        RecommendationRequest recommendationRequest = </span>
             recommendationRequestRepository
-<span class="fc" id="L130">                .findById(id)</span>
-<span class="fc" id="L131">                .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
+<span class="fc" id="L141">                .findById(id)</span>
+<span class="fc" id="L142">                .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
 
-<span class="fc" id="L133">        recommendationRequest.setStatus(incoming.getStatus());</span>
+<span class="fc" id="L144">        recommendationRequest.setStatus(incoming.getStatus());</span>
 
-<span class="fc bfc" id="L135" title="All 4 branches covered.">        if(&quot;COMPLETED&quot;.equals(incoming.getStatus()) || &quot;DENIED&quot;.equals(incoming.getStatus())) {</span>
-<span class="fc" id="L136">            recommendationRequest.setCompletionDate(LocalDateTime.now());</span>
+<span class="fc bfc" id="L146" title="All 4 branches covered.">        if(&quot;COMPLETED&quot;.equals(incoming.getStatus()) || &quot;DENIED&quot;.equals(incoming.getStatus())) {</span>
+<span class="fc" id="L147">            recommendationRequest.setCompletionDate(LocalDateTime.now());</span>
         }
 
-<span class="fc" id="L139">        recommendationRequestRepository.save(recommendationRequest);</span>
+<span class="fc" id="L150">        recommendationRequestRepository.save(recommendationRequest);</span>
 
-<span class="fc" id="L141">        return recommendationRequest;</span>
+<span class="fc" id="L152">        return recommendationRequest;</span>
     }
 
     /**
@@ -151,9 +162,9 @@ import lombok.extern.slf4j.Slf4j;
     public Iterable&lt;RecommendationRequest&gt; allRequesterRecommendationRequests(
     ) {
         // toyed with having this only be ROLE_STUDENT but I think even professors should be able to submit requests so they can see which ones they have submitted too
-<span class="fc" id="L154">        User currentUser = getCurrentUser().getUser();</span>
-<span class="fc" id="L155">        Iterable&lt;RecommendationRequest&gt; recommendationRequests = recommendationRequestRepository.findAllByRequesterId(currentUser.getId());</span>
-<span class="fc" id="L156">        return recommendationRequests;</span>
+<span class="fc" id="L165">        User currentUser = getCurrentUser().getUser();</span>
+<span class="fc" id="L166">        Iterable&lt;RecommendationRequest&gt; recommendationRequests = recommendationRequestRepository.findAllByRequesterId(currentUser.getId());</span>
+<span class="fc" id="L167">        return recommendationRequests;</span>
     }
 
     /**
@@ -165,9 +176,9 @@ import lombok.extern.slf4j.Slf4j;
     @GetMapping(&quot;/professor/all&quot;)
     public Iterable&lt;RecommendationRequest&gt; allProfessorRecommendationRequests(
     ) {
-<span class="fc" id="L168">        User currentUser = getCurrentUser().getUser();</span>
-<span class="fc" id="L169">        Iterable&lt;RecommendationRequest&gt; recommendationRequests = recommendationRequestRepository.findAllByProfessorId(currentUser.getId());</span>
-<span class="fc" id="L170">        return recommendationRequests;</span>
+<span class="fc" id="L179">        User currentUser = getCurrentUser().getUser();</span>
+<span class="fc" id="L180">        Iterable&lt;RecommendationRequest&gt; recommendationRequests = recommendationRequestRepository.findAllByProfessorId(currentUser.getId());</span>
+<span class="fc" id="L181">        return recommendationRequests;</span>
     }
 
     /**
@@ -180,13 +191,13 @@ import lombok.extern.slf4j.Slf4j;
     @GetMapping(&quot;&quot;)
     public RecommendationRequest getById(
             @Parameter(name = &quot;id&quot;) @RequestParam Long id) {
-<span class="fc" id="L183">            Long currentUserId = getCurrentUser().getUser().getId();</span>
-<span class="fc" id="L184">            RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)</span>
-<span class="fc" id="L185">                .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
-<span class="fc bfc" id="L186" title="All 4 branches covered.">            if (recommendationRequest.getRequester().getId() != currentUserId &amp;&amp; recommendationRequest.getProfessor().getId() != currentUserId) {</span>
-<span class="fc" id="L187">                throw new EntityNotFoundException(RecommendationRequest.class, id);</span>
+<span class="fc" id="L194">            Long currentUserId = getCurrentUser().getUser().getId();</span>
+<span class="fc" id="L195">            RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)</span>
+<span class="fc" id="L196">                .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
+<span class="fc bfc" id="L197" title="All 4 branches covered.">            if (recommendationRequest.getRequester().getId() != currentUserId &amp;&amp; recommendationRequest.getProfessor().getId() != currentUserId) {</span>
+<span class="fc" id="L198">                throw new EntityNotFoundException(RecommendationRequest.class, id);</span>
             }
-<span class="fc" id="L189">        return recommendationRequest;</span>
+<span class="fc" id="L200">        return recommendationRequest;</span>
     }
 
     /**
@@ -208,21 +219,21 @@ import lombok.extern.slf4j.Slf4j;
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDate)
             {
         //get current date right now and set status to pending
-<span class="fc" id="L211">        CurrentUser currentUser = getCurrentUser();</span>
-<span class="fc" id="L212">        RecommendationRequest recommendationRequest = new RecommendationRequest();</span>
-<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (!recommendationType.equals(&quot;Other&quot;)) {</span>
-<span class="fc" id="L214">            requestTypeRepository.findByRequestType(recommendationType).orElseThrow(() -&gt; new EntityNotFoundException(RequestType.class, recommendationType));</span>
+<span class="fc" id="L222">        CurrentUser currentUser = getCurrentUser();</span>
+<span class="fc" id="L223">        RecommendationRequest recommendationRequest = new RecommendationRequest();</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        if (!recommendationType.equals(&quot;Other&quot;)) {</span>
+<span class="fc" id="L225">            requestTypeRepository.findByRequestType(recommendationType).orElseThrow(() -&gt; new EntityNotFoundException(RequestType.class, recommendationType));</span>
         }
-<span class="fc" id="L216">        recommendationRequest.setRecommendationType(recommendationType);</span>
-<span class="fc" id="L217">        recommendationRequest.setDetails(details);</span>
-<span class="fc" id="L218">        User professor = userRepository.findById(professorId).orElseThrow(() -&gt; new EntityNotFoundException(User.class, professorId));</span>
-<span class="fc" id="L219">        recommendationRequest.setProfessor(professor);</span>
-<span class="fc" id="L220">        recommendationRequest.setRequester(currentUser.getUser());</span>
-<span class="fc" id="L221">        recommendationRequest.setStatus(&quot;PENDING&quot;);</span>
-<span class="fc" id="L222">        recommendationRequest.setDueDate(dueDate);</span>
+<span class="fc" id="L227">        recommendationRequest.setRecommendationType(recommendationType);</span>
+<span class="fc" id="L228">        recommendationRequest.setDetails(details);</span>
+<span class="fc" id="L229">        User professor = userRepository.findById(professorId).orElseThrow(() -&gt; new EntityNotFoundException(User.class, professorId));</span>
+<span class="fc" id="L230">        recommendationRequest.setProfessor(professor);</span>
+<span class="fc" id="L231">        recommendationRequest.setRequester(currentUser.getUser());</span>
+<span class="fc" id="L232">        recommendationRequest.setStatus(&quot;PENDING&quot;);</span>
+<span class="fc" id="L233">        recommendationRequest.setDueDate(dueDate);</span>
 
-<span class="fc" id="L224">        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.save(recommendationRequest);</span>
-<span class="fc" id="L225">        return savedRecommendationRequest;</span>
+<span class="fc" id="L235">        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.save(recommendationRequest);</span>
+<span class="fc" id="L236">        return savedRecommendationRequest;</span>
     }
 
     /**
@@ -234,10 +245,10 @@ import lombok.extern.slf4j.Slf4j;
     @PreAuthorize(&quot;hasRole('ROLE_PROFESSOR')&quot;)
     public Iterable&lt;RecommendationRequest&gt; getRecommendationRequestByStatusForProfessor(
         @RequestParam String status) {
-<span class="fc" id="L237">        User currentUser = getCurrentUser().getUser();</span>
+<span class="fc" id="L248">        User currentUser = getCurrentUser().getUser();</span>
 
-<span class="fc" id="L239">        return recommendationRequestRepository.findAllByProfessorIdAndStatus(</span>
-<span class="fc" id="L240">            currentUser.getId(), status);</span>
+<span class="fc" id="L250">        return recommendationRequestRepository.findAllByProfessorIdAndStatus(</span>
+<span class="fc" id="L251">            currentUser.getId(), status);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
