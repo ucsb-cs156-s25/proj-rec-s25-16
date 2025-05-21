@@ -17,13 +17,10 @@ describe("RequestTypeForm", () => {
     const input = screen.getByTestId("RequestTypeForm-requestType");
     const submit = screen.getByTestId("RequestTypeForm-submit");
 
-    // type text, then blur so RHF finishes validation
     await userEvent.type(input, "Test Request");
-    await userEvent.tab(); // blur input
-
+    await userEvent.tab(); // blur to trigger RHF validation
     await userEvent.click(submit);
 
-    // wait for RHF to trigger submitAction
     await waitFor(() =>
       expect(mockSubmit).toHaveBeenCalledWith(
         { requestType: "Test Request" },
@@ -56,9 +53,15 @@ describe("RequestTypeForm", () => {
     expect(input).toHaveValue("Initial Type");
   });
 
-  test("displays the correct button label", () => {
+  test("displays a custom button label when provided", () => {
     render(<RequestTypeForm submitAction={() => {}} buttonLabel="Add Type" />);
     const button = screen.getByTestId("RequestTypeForm-submit");
     expect(button).toHaveTextContent("Add Type");
+  });
+
+  test("uses the default button label when none provided", () => {
+    render(<RequestTypeForm submitAction={() => {}} />);
+    const button = screen.getByTestId("RequestTypeForm-submit");
+    expect(button).toHaveTextContent("Create"); // default label
   });
 });
