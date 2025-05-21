@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import RequestTypeForm from "main/components/RequestType/RequestTypeForm";
 
@@ -17,12 +17,18 @@ describe("RequestTypeForm", () => {
     const input = screen.getByTestId("RequestTypeForm-requestType");
     const submit = screen.getByTestId("RequestTypeForm-submit");
 
+    // type text, then blur so RHF finishes validation
     await userEvent.type(input, "Test Request");
+    await userEvent.tab(); // blur input
+
     await userEvent.click(submit);
 
-    expect(mockSubmit).toHaveBeenCalledWith(
-      { requestType: "Test Request" },
-      expect.anything(),
+    // wait for RHF to trigger submitAction
+    await waitFor(() =>
+      expect(mockSubmit).toHaveBeenCalledWith(
+        { requestType: "Test Request" },
+        expect.anything(),
+      ),
     );
   });
 
