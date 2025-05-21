@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import RequestTypeForm from "main/components/RequestType/RequestTypeForm";
 
 describe("RequestTypeForm", () => {
@@ -16,11 +17,8 @@ describe("RequestTypeForm", () => {
     const input = screen.getByTestId("RequestTypeForm-requestType");
     const submit = screen.getByTestId("RequestTypeForm-submit");
 
-    fireEvent.change(input, { target: { value: "Test Request" } });
-
-    await act(async () => {
-      fireEvent.click(submit);
-    });
+    await userEvent.type(input, "Test Request");
+    await userEvent.click(submit);
 
     expect(mockSubmit).toHaveBeenCalledWith(
       { requestType: "Test Request" },
@@ -32,12 +30,29 @@ describe("RequestTypeForm", () => {
     render(<RequestTypeForm submitAction={() => {}} />);
     const submit = screen.getByTestId("RequestTypeForm-submit");
 
-    await act(async () => {
-      fireEvent.click(submit);
-    });
+    await userEvent.click(submit);
 
     expect(
       await screen.findByText("Request type is required"),
     ).toBeInTheDocument();
+  });
+
+  test("populates form with initialContents", () => {
+    const initialContents = { requestType: "Initial Type" };
+    render(
+      <RequestTypeForm
+        submitAction={() => {}}
+        initialContents={initialContents}
+      />,
+    );
+
+    const input = screen.getByTestId("RequestTypeForm-requestType");
+    expect(input).toHaveValue("Initial Type");
+  });
+
+  test("displays the correct button label", () => {
+    render(<RequestTypeForm submitAction={() => {}} buttonLabel="Add Type" />);
+    const button = screen.getByTestId("RequestTypeForm-submit");
+    expect(button).toHaveTextContent("Add Type");
   });
 });
