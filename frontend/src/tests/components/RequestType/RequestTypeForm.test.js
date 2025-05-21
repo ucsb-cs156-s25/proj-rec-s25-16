@@ -4,7 +4,9 @@ import RequestTypeForm from "main/components/RequestType/RequestTypeForm";
 describe("RequestTypeForm", () => {
   test("renders without crashing", () => {
     render(<RequestTypeForm submitAction={() => {}} />);
-    expect(screen.getByTestId("RequestTypeForm-requestType")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("RequestTypeForm-requestType"),
+    ).toBeInTheDocument();
   });
 
   test("submits correct data", async () => {
@@ -22,7 +24,7 @@ describe("RequestTypeForm", () => {
 
     expect(mockSubmit).toHaveBeenCalledWith(
       { requestType: "Test Request" },
-      expect.anything()
+      expect.anything(),
     );
   });
 
@@ -34,6 +36,8 @@ describe("RequestTypeForm", () => {
       fireEvent.click(submit);
     });
 
-    expect(await screen.findByText("Request type is required")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Request type is required"),
+    ).toBeInTheDocument();
   });
 });
