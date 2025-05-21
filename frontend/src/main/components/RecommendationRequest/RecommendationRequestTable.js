@@ -5,13 +5,21 @@ import { useBackendMutation } from "main/utils/useBackend";
 import {
   cellToAxiosParamsDelete,
   onDeleteSuccess,
+  cellToAxiosParamsUpdateStatus,
+  onUpdateStatusSuccess,
 } from "main/utils/RecommendationRequestUtils";
 import { useNavigate } from "react-router-dom";
 import { hasRole } from "main/utils/currentUser";
+import { Dropdown, DropdownButton } from "react-bootstrap";
+import { useQueryClient } from "react-query";
 
-export default function RecommendationRequestTable({ requests, currentUser }) {
+export default function RecommendationRequestTable({
+  requests,
+  currentUser,
+  onPendingRequests = false,
+}) {
   const navigate = useNavigate();
-
+  const queryClient = useQueryClient();
   const editCallback = (cell) => {
     navigate(`/requests/edit/${cell.row.values.id}`);
   };
@@ -24,15 +32,56 @@ export default function RecommendationRequestTable({ requests, currentUser }) {
     : "/api/recommendationrequest/requester/all";
 
   const deleteMutation = useBackendMutation(
-    cellToAxiosParamsDelete,
+    (cell) => cellToAxiosParamsDelete(cell, hasRole(currentUser, "ROLE_ADMIN")),
     { onSuccess: onDeleteSuccess },
     [apiEndpoint],
   );
+
   // Stryker restore all
 
   // Stryker disable next-line all : TODO try to make a good test for this
   const deleteCallback = async (cell) => {
     deleteMutation.mutate(cell);
+  };
+
+  const updateStatusMutation = useBackendMutation(
+    (params) => cellToAxiosParamsUpdateStatus(params.cell, params.newStatus),
+    {
+      onSuccess: (message) => {
+        onUpdateStatusSuccess(message);
+        // Refreshes the page immediately when status is changed by requiring a new GET call
+        queryClient.invalidateQueries(apiEndpoint);
+      },
+    },
+  );
+
+  const StatusCell = ({ cell }) => {
+    const [status, setStatus] = React.useState(cell.row.values.status);
+
+    const handleClick = (eventKey) => {
+      setStatus(eventKey);
+      updateStatusMutation.mutate({ cell, newStatus: eventKey });
+    };
+
+    if (onPendingRequests && hasRole(currentUser, "ROLE_PROFESSOR")) {
+      return (
+        <DropdownButton
+          title={status}
+          data-testid={`status-dropdown-${cell.row.values.id}`}
+          onSelect={handleClick}
+        >
+          <Dropdown.Item eventKey="PENDING">PENDING</Dropdown.Item>
+          <Dropdown.Item eventKey="COMPLETED">COMPLETED</Dropdown.Item>
+          <Dropdown.Item eventKey="DENIED">DENIED</Dropdown.Item>
+        </DropdownButton>
+      );
+    } else {
+      return (
+        <span data-testid={`status-span-${cell.row.values.id}`}>
+          {cell.row.values.status}
+        </span>
+      );
+    }
   };
 
   const columns = [
@@ -67,6 +116,7 @@ export default function RecommendationRequestTable({ requests, currentUser }) {
     {
       Header: "Status",
       accessor: "status",
+      Cell: StatusCell,
     },
     {
       Header: "Submission Date",
