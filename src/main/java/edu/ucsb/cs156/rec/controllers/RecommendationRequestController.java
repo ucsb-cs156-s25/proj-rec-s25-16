@@ -185,54 +185,76 @@ public class RecommendationRequestController extends ApiController {
         return recommendationRequest;
     }
 
-    /**
-     * This method creates a new Recommendation Request. Accessible only to users with the role "ROLE_USER" so professors and students can both create.
-     * @param professorId id from a dropdown of professors from the form in create page
-     * @param recommendationType recommendation types of request
-     * @param details details of request
-     * @param dueDate submission date of request
-     * @return the save recommendationrequests (with it's id field set by the database)
-     */
-
-    @Operation(summary = "Create a new recommendation request")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    @PostMapping("/post")
-    public RecommendationRequest postRecommendationRequests(
-            @Parameter(name = "professorId") @RequestParam Long professorId,
-            @Parameter(name = "recommendationType") @RequestParam String recommendationType,
-            @Parameter(name = "details") @RequestParam String details,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDate)
-            {
-        //get current date right now and set status to pending
-        CurrentUser currentUser = getCurrentUser();
-        RecommendationRequest recommendationRequest = new RecommendationRequest();
-        if (!recommendationType.equals("Other")) {
-            requestTypeRepository.findByRequestType(recommendationType).orElseThrow(() -> new EntityNotFoundException(RequestType.class, recommendationType));
+  /**
+ * This method creates a new Recommendation Request. Accessible only to users with the role "ROLE_USER" so professors and students can both create.
+ * @param professorId id from a dropdown of professors from the form in create page
+ * @param requestType_id id of the request type
+ * @param details details of request
+ * @param dueDate submission date of request
+ * @return the save recommendationrequests (with it's id field set by the database)
+ */
+@Operation(summary = "Create a new recommendation request")
+@PreAuthorize("hasRole('ROLE_USER')")
+@PostMapping("/post")
+public RecommendationRequest postRecommendationRequests(
+        @Parameter(name = "professorId") @RequestParam Long professorId,
+        @Parameter(name = "requestType_id") @RequestParam String requestType_id,  // Changed from Long to String
+        @Parameter(name = "details") @RequestParam String details,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDate) {
+    //get current date right now and set status to pending
+    CurrentUser currentUser = getCurrentUser();
+    RecommendationRequest recommendationRequest = new RecommendationRequest();
+    
+    // Handle the request type - either get it from the database or create a special "Other" type
+    RequestType requestType;
+    if ("-1".equals(requestType_id) || "OTHER".equals(requestType_id)) {  // Changed comparison
+        // Special case for "Other"
+        requestType = requestTypeRepository.findByRequestType("Other")
+            .orElseGet(() -> {
+                RequestType newType = new RequestType();
+                newType.setRequestType("Other");
+                return requestTypeRepository.save(newType);
+            });
+    } else {
+        // Regular case - look up by ID
+        try {
+            Long typeId = Long.parseLong(requestType_id);  // Parse string to Long
+            requestType = requestTypeRepository.findById(typeId)
+                .orElseThrow(() -> new EntityNotFoundException(RequestType.class, typeId));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid request type ID format");
         }
-        recommendationRequest.setRecommendationType(recommendationType);
-        recommendationRequest.setDetails(details);
-        User professor = userRepository.findById(professorId).orElseThrow(() -> new EntityNotFoundException(User.class, professorId));
-        recommendationRequest.setProfessor(professor);
-        recommendationRequest.setRequester(currentUser.getUser());
-        recommendationRequest.setStatus("PENDING");
-        recommendationRequest.setDueDate(dueDate);
-
-        RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.save(recommendationRequest);
-        return savedRecommendationRequest;
     }
+    
+    // Set all the required fields
+    recommendationRequest.setRequestType(requestType);
+    recommendationRequest.setDetails(details);
+    
+    // Find professor by ID
+    User professor = userRepository.findById(professorId)
+        .orElseThrow(() -> new EntityNotFoundException(User.class, professorId));
+    
+    recommendationRequest.setProfessor(professor);
+    recommendationRequest.setRequester(currentUser.getUser());
+    recommendationRequest.setStatus("PENDING");
+    recommendationRequest.setDueDate(dueDate);
+    
+    // Save and return the request
+    RecommendationRequest savedRecommendationRequest = recommendationRequestRepository.save(recommendationRequest);
+    return savedRecommendationRequest;
+}
 
-    /**
-     * This method returns a list of recommendation requests with specified status for a professor.
-     * @return a list of recommendation requests with specified status for a professor.
-     */
-    @Operation(summary = "Get all recommendation requests with specified status for a professor")
-    @GetMapping("/professor/filtered")
-    @PreAuthorize("hasRole('ROLE_PROFESSOR')")
-    public Iterable<RecommendationRequest> getRecommendationRequestByStatusForProfessor(
-        @RequestParam String status) {
-        User currentUser = getCurrentUser().getUser();
-
-        return recommendationRequestRepository.findAllByProfessorIdAndStatus(
-            currentUser.getId(), status);
-    }
+/**
+ * This method returns a list of all Recommendation Requests for the current professor filtered by status.
+ * @param status the status to filter by (e.g., "PENDING", "COMPLETED")
+ * @return a list of all Recommendation Requests for the current professor with the specified status
+ */
+@Operation(summary = "List Recommendation Requests for professor filtered by status")
+@PreAuthorize("hasRole('ROLE_PROFESSOR')")
+@GetMapping("/professor/filtered")
+public Iterable<RecommendationRequest> getRecommendationRequestByStatusForProfessor(
+        @Parameter(name = "status") @RequestParam String status) {
+    User currentUser = getCurrentUser().getUser();
+    return recommendationRequestRepository.findAllByProfessorIdAndStatus(currentUser.getId(), status);
+}
 }

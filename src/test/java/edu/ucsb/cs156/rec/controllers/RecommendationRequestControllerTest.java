@@ -13,10 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -28,14 +25,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import edu.ucsb.cs156.rec.ControllerTestCase;
 import edu.ucsb.cs156.rec.entities.RecommendationRequest;
+import edu.ucsb.cs156.rec.entities.RequestType;
 import edu.ucsb.cs156.rec.repositories.RecommendationRequestRepository;
+import edu.ucsb.cs156.rec.repositories.RequestTypeRepository;
 import edu.ucsb.cs156.rec.testconfig.TestConfig;
-import joptsimple.internal.OptionNameMap;
+import org.mockito.InOrder;
 
 @WebMvcTest(controllers = RecommendationRequestController.class)
 @Import(TestConfig.class)
@@ -45,6 +43,22 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
 
     @MockBean
     UserRepository userRepository;
+    
+    @MockBean
+    RequestTypeRepository requestTypeRepository;
+
+    // Helper method to create mock RequestType
+    private RequestType createMockRequestType(String typeName) {
+        RequestType requestType = RequestType.builder()
+            .id(1L)
+            .requestType(typeName)
+            .build();
+        
+        when(requestTypeRepository.findByRequestType(typeName)).thenReturn(Optional.of(requestType));
+        when(requestTypeRepository.findById(1L)).thenReturn(Optional.of(requestType));
+        
+        return requestType;
+    }
 
     //User can delete their own recommendation request
     @WithMockUser(roles = { "USER" })
@@ -63,12 +77,14 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
 
+        RequestType requestType = createMockRequestType("PhDprogram");
+
         // arrange
         RecommendationRequest recReq = RecommendationRequest.builder()
                 .id(15L)
                 .requester(user)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -112,11 +128,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
 
+        RequestType requestType = createMockRequestType("PhDprogram");
+
         RecommendationRequest rec1 = RecommendationRequest.builder()
                 .id(15L)
                 .requester(user1)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -158,12 +176,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
         
+        RequestType requestType = createMockRequestType("PhDprogram");
 
         RecommendationRequest rec1 = RecommendationRequest.builder()
                 .id(67L)
                 .requester(user2)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -204,11 +223,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
 
+        RequestType requestType = createMockRequestType("PhDprogram");
+
         RecommendationRequest rec1 = RecommendationRequest.builder()
                 .id(67L)
                 .requester(user2)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -269,11 +290,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
 
+        RequestType requestType = createMockRequestType("PhDprogram");
+
         RecommendationRequest rec = RecommendationRequest.builder()
                 .id(63L)
                 .requester(user1)
                 .professor(prof1)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -286,7 +309,7 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .id(63L)
                 .requester(user1)
                 .professor(prof1)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("more details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -299,7 +322,7 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .id(63L)
                 .requester(user1)
                 .professor(prof1)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("more details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -350,11 +373,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
 
+        RequestType requestType = createMockRequestType("PhDprogram");
+
         RecommendationRequest rec = RecommendationRequest.builder()
                 .id(67L)
                 .requester(user1)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -399,11 +424,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
         
+        RequestType requestType = createMockRequestType("PhDprogram");
+        
         RecommendationRequest rec = RecommendationRequest.builder()
                 .id(67L)
                 .requester(user2)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -415,7 +442,7 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .id(67L)
                 .requester(user1)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("more details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -463,11 +490,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
 
+        RequestType requestType = createMockRequestType("PhDprogram");
+
         RecommendationRequest rec = RecommendationRequest.builder()
                 .id(67L)
                 .requester(student)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("PENDING")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -480,7 +509,7 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .id(67L)
                 .requester(student)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("COMPLETED")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -492,7 +521,7 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .id(67L)
                 .requester(student)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("COMPLETED")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -542,11 +571,13 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
                 .professor(true)
                 .build();
 
+        RequestType requestType = createMockRequestType("PhDprogram");
+
         RecommendationRequest rec_updated = RecommendationRequest.builder()
                 .id(67L)
                 .requester(user2)
                 .professor(prof)
-                .recommendationType("PhDprogram")
+                .requestType(requestType)
                 .details("details")
                 .status("COMPLETED")
                 .completionDate(LocalDateTime.parse("2022-01-03T00:00:00"))
@@ -575,4 +606,245 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
         assertEquals("EntityNotFoundException", json.get("type"));
         assertEquals("RecommendationRequest with id 67 not found", json.get("message"));
     }
+
+    // NEW TESTS TO IMPROVE MUTATION COVERAGE
+
+    @WithMockUser(roles = { "USER" })
+    @Test
+    public void test_post_recommendation_request_with_existing_professor_and_existing_other_type() throws Exception {
+        // arrange
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        User professor = User.builder().id(7L).email("prof@ucsb.edu").fullName("Professor").build();
+        
+        // Create mock "Other" type that already exists
+        RequestType otherType = RequestType.builder().id(99L).requestType("Other").build();
+        
+        // Mock the request type repository to return the Other type
+        when(requestTypeRepository.findByRequestType("Other")).thenReturn(Optional.of(otherType));
+        
+        // Create expected recommendation request
+        RecommendationRequest expectedRequest = RecommendationRequest.builder()
+                .requester(currentUser)
+                .professor(professor)
+                .requestType(otherType)
+                .details("test details")
+                .status("PENDING")
+                .dueDate(LocalDateTime.parse("2024-11-25T16:46:28"))
+                .build();
+        
+        // Mock save to return our expected request
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(expectedRequest);
+        when(userRepository.findById(7L)).thenReturn(Optional.of(professor));
+        
+        // act
+        MvcResult response = mockMvc.perform(
+                post("/api/recommendationrequest/post")
+                .param("requestType_id", "OTHER")  // Use the special "OTHER" value
+                .param("details", "test details")
+                .param("professorId", "7")
+                .param("dueDate", "2024-11-25T16:46:28")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andReturn();
+        
+        // assert
+        verify(requestTypeRepository, times(1)).findByRequestType("Other");
+        verify(recommendationRequestRepository, times(1)).save(any(RecommendationRequest.class));
+        
+        // Verify all the setters were called in the right order
+        InOrder inOrder = inOrder(recommendationRequestRepository);
+        inOrder.verify(recommendationRequestRepository).save(any(RecommendationRequest.class));
+        
+        String expectedJson = mapper.writeValueAsString(expectedRequest);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
+    
+    @WithMockUser(roles = { "USER" })
+    @Test
+    public void test_post_recommendation_request_with_existing_professor_and_non_existing_other_type() throws Exception {
+        // arrange
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        User professor = User.builder().id(7L).email("prof@ucsb.edu").fullName("Professor").build();
+        
+        // Create a new Other type that will be created
+        RequestType newOtherType = RequestType.builder().id(99L).requestType("Other").build();
+        
+        // Mock the request type repository to NOT find the Other type, but then save it
+        when(requestTypeRepository.findByRequestType("Other")).thenReturn(Optional.empty());
+        when(requestTypeRepository.save(any(RequestType.class))).thenReturn(newOtherType);
+        
+        // Create expected recommendation request
+        RecommendationRequest expectedRequest = RecommendationRequest.builder()
+                .requester(currentUser)
+                .professor(professor)
+                .requestType(newOtherType)
+                .details("test details")
+                .status("PENDING")
+                .dueDate(LocalDateTime.parse("2024-11-25T16:46:28"))
+                .build();
+        
+        // Mock save to return our expected request
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(expectedRequest);
+        when(userRepository.findById(7L)).thenReturn(Optional.of(professor));
+        
+        // act
+        MvcResult response = mockMvc.perform(
+                post("/api/recommendationrequest/post")
+                .param("requestType_id", "OTHER")  // Use the special "OTHER" value
+                .param("details", "test details")
+                .param("professorId", "7")
+                .param("dueDate", "2024-11-25T16:46:28")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andReturn();
+        
+        // assert
+        verify(requestTypeRepository, times(1)).findByRequestType("Other");
+        verify(requestTypeRepository, times(1)).save(any(RequestType.class));
+        verify(recommendationRequestRepository, times(1)).save(any(RecommendationRequest.class));
+        
+        // Verify all the setters in the new RequestType
+        String expectedJson = mapper.writeValueAsString(expectedRequest);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
+    
+    @WithMockUser(roles = { "USER" })
+    @Test
+    public void test_post_recommendation_request_with_existing_professor_and_regular_request_type() throws Exception {
+        // arrange
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        User professor = User.builder().id(7L).email("prof@ucsb.edu").fullName("Professor").build();
+        
+        // Create a regular request type
+        RequestType regularType = RequestType.builder().id(99L).requestType("PhD Application").build();
+        
+        // Mock the request type repository to find the type by ID
+        when(requestTypeRepository.findById(99L)).thenReturn(Optional.of(regularType));
+        
+        // Create expected recommendation request
+        RecommendationRequest expectedRequest = RecommendationRequest.builder()
+                .requester(currentUser)
+                .professor(professor)
+                .requestType(regularType)
+                .details("test details")
+                .status("PENDING")
+                .dueDate(LocalDateTime.parse("2024-11-25T16:46:28"))
+                .build();
+        
+        // Mock save to return our expected request
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(expectedRequest);
+        when(userRepository.findById(7L)).thenReturn(Optional.of(professor));
+        
+        // act
+        MvcResult response = mockMvc.perform(
+                post("/api/recommendationrequest/post")
+                .param("requestType_id", "99")  // Use regular ID
+                .param("details", "test details")
+                .param("professorId", "7")
+                .param("dueDate", "2024-11-25T16:46:28")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andReturn();
+        
+        // assert
+        verify(requestTypeRepository, times(1)).findById(99L);
+        verify(recommendationRequestRepository, times(1)).save(any(RecommendationRequest.class));
+        
+        String expectedJson = mapper.writeValueAsString(expectedRequest);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
+    
+    @WithMockUser(roles = { "USER" })
+    @Test
+    public void test_post_recommendation_request_with_nonexisting_request_type() throws Exception {
+        // arrange
+        // Mock the request type repository to NOT find the type by ID
+        when(requestTypeRepository.findById(999L)).thenReturn(Optional.empty());
+        
+        // act
+        MvcResult response = mockMvc.perform(
+                post("/api/recommendationrequest/post")
+                .param("requestType_id", "999")  // Non-existent ID
+                .param("details", "test details")
+                .param("professorId", "7")
+                .param("dueDate", "2024-11-25T16:46:28")
+                .with(csrf()))
+                .andExpect(status().isNotFound())
+                .andReturn();
+        
+        // assert
+        verify(requestTypeRepository, times(1)).findById(999L);
+        Map<String, Object> json = responseToJson(response);
+        assertEquals("EntityNotFoundException", json.get("type"));
+        assertEquals("RequestType with id 999 not found", json.get("message"));
+    }
+    
+    @WithMockUser(roles = { "USER" })
+    @Test
+    public void test_post_recommendation_request_with_negative_one_request_type() throws Exception {
+        // arrange
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        User professor = User.builder().id(7L).email("prof@ucsb.edu").fullName("Professor").build();
+        
+        // Create mock "Other" type that already exists
+        RequestType otherType = RequestType.builder().id(99L).requestType("Other").build();
+        
+        // Mock the request type repository to return the Other type
+        when(requestTypeRepository.findByRequestType("Other")).thenReturn(Optional.of(otherType));
+        
+        // Create expected recommendation request
+        RecommendationRequest expectedRequest = RecommendationRequest.builder()
+                .requester(currentUser)
+                .professor(professor)
+                .requestType(otherType)
+                .details("test details")
+                .status("PENDING")
+                .dueDate(LocalDateTime.parse("2024-11-25T16:46:28"))
+                .build();
+        
+        // Mock save to return our expected request
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class))).thenReturn(expectedRequest);
+        when(userRepository.findById(7L)).thenReturn(Optional.of(professor));
+        
+        // act
+        MvcResult response = mockMvc.perform(
+                post("/api/recommendationrequest/post")
+                .param("requestType_id", "-1")  // Special value -1
+                .param("details", "test details")
+                .param("professorId", "7")
+                .param("dueDate", "2024-11-25T16:46:28")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andReturn();
+        
+        // assert
+        verify(requestTypeRepository, times(1)).findByRequestType("Other");
+        verify(recommendationRequestRepository, times(1)).save(any(RecommendationRequest.class));
+        
+        String expectedJson = mapper.writeValueAsString(expectedRequest);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
+    @WithMockUser(roles = { "USER" })
+@Test
+public void test_post_recommendation_request_with_invalid_request_type_format() throws Exception {
+    // act
+    MvcResult response = mockMvc.perform(
+            post("/api/recommendationrequest/post")
+            .param("requestType_id", "invalid-id")  // Non-numeric, non-special value
+            .param("details", "test details")
+            .param("professorId", "7")
+            .param("dueDate", "2024-11-25T16:46:28")
+            .with(csrf()))
+            .andExpect(status().isBadRequest())  // Should return 400 Bad Request
+            .andReturn();
+    
+    // assert
+    Map<String, Object> json = responseToJson(response);
+    assertEquals("IllegalArgumentException", json.get("type"));
+    assertEquals("Invalid request type ID format", json.get("message"));
+}
 }
