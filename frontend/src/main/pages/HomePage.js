@@ -4,10 +4,10 @@ export default function HomePage() {
   return (
     <BasicLayout>
       <div className="pt-2">
-        <h1>Recommendation Request Manager</h1>
+        <h1>Hello, world!</h1>
         <p>
-          This is a webapp that assists students and professors in creating and
-          managing recommendation letter requests.
+          This is a webapp containing a bunch of different Spring Boot/React
+          examples.
         </p>
       </div>
     </BasicLayout>

@@ -25,7 +25,7 @@ export default function AppNavbar({
       >
         <Container>
           <Navbar.Brand as={Link} to="/">
-            Rec Manager
+            Example
           </Navbar.Brand>
 
           <Navbar.Toggle />
