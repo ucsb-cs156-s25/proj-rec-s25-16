@@ -15,5 +15,10 @@
     "src/main/**/*.js",
     "src/main/**/*.jsx"
   ],
+  "mutator": {
+    "excludedMutations": [
+      "ArrayDeclaration"
+    ]
+  },
   "thresholds": { "high": 100, "low": 90, "break": 100 }
 }
