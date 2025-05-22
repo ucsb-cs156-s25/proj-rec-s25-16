@@ -196,4 +196,24 @@ describe("RecommendationRequestForm tests", () => {
       screen.getByText(/Please select a recommendation type/),
     ).toBeInTheDocument();
   });
+  test("that the OTHER option can be selected", async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <RecommendationRequestForm />
+        </Router>
+      </QueryClientProvider>,
+    );
+  
+    expect(await screen.findByText(/Create/)).toBeInTheDocument();
+    
+    // Find the recommendation type dropdown
+    const recommendationTypeSelect = screen.getByTestId(`${testId}-recommendationType`);
+    
+    // Select the "OTHER" option
+    fireEvent.change(recommendationTypeSelect, { target: { value: "OTHER" } });
+    
+    // Verify that "OTHER" is selected
+    expect(recommendationTypeSelect.value).toBe("OTHER");
+  });
 });
