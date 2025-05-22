@@ -13,7 +13,11 @@ const recommendationRequestFixtures = {
       completionDate: "",
       status: "PENDING",
       details: "details",
-      recommendationType: "CS Department BS/MS program",
+      requestType: {
+        // CHANGED: object instead of string
+        id: 1,
+        requestType: "CS Department BS/MS program",
+      },
       requester_id: 1,
       requester: {
         fullName: "Divyani Punj",
@@ -36,7 +40,11 @@ const recommendationRequestFixtures = {
       completionDate: "2022-06-02T12:00",
       status: "COMPLETED",
       details: "lots of details",
-      recommendationType: "CS Department BS/MS program",
+      requestType: {
+        // CHANGED: object instead of string
+        id: 1,
+        requestType: "CS Department BS/MS program",
+      },
       requester_id: 2,
       requester: {
         fullName: "Mia Scott",
@@ -57,7 +65,11 @@ const recommendationRequestFixtures = {
       completionDate: "",
       status: "PENDING",
       details: "test details",
-      recommendationType: "CS Department BS/MS program",
+      requestType: {
+        // CHANGED: object instead of string
+        id: 1,
+        requestType: "CS Department BS/MS program",
+      },
       requester_id: 3,
       requester: {
         fullName: "Shrena Punj",
@@ -77,7 +89,11 @@ const recommendationRequestFixtures = {
       completionDate: "2022-02-03T12:00",
       status: "COMPLETED",
       details: "test details",
-      recommendationType: "CS Department BS/MS program",
+      requestType: {
+        // CHANGED: object instead of string
+        id: 1,
+        requestType: "CS Department BS/MS program",
+      },
       requester_id: 4,
       requester: {
         fullName: "Krish Seghal",
@@ -126,7 +142,11 @@ const recommendationRequestFixtures = {
         email: "professor1@ucsb.edu",
       },
       details: "Completed request",
-      recommendationType: "Graduate School",
+      requestType: {
+        // CHANGED: object instead of string
+        id: 2,
+        requestType: "Graduate School",
+      },
       status: "COMPLETED",
       submissionDate: "2024-02-01T00:00:00",
       dueDate: "2024-03-01T00:00:00",
@@ -147,7 +167,11 @@ const recommendationRequestFixtures = {
         email: "professor1@ucsb.edu",
       },
       details: "Denied request",
-      recommendationType: "Graduate School",
+      requestType: {
+        // CHANGED: object instead of string
+        id: 2,
+        requestType: "Graduate School",
+      },
       status: "DENIED",
       submissionDate: "2024-02-01T00:00:00",
       dueDate: "2024-03-01T00:00:00",
@@ -168,7 +192,11 @@ const recommendationRequestFixtures = {
         email: "professor1@ucsb.edu",
       },
       details: "Pending request",
-      recommendationType: "Graduate School",
+      requestType: {
+        // CHANGED: object instead of string
+        id: 2,
+        requestType: "Graduate School",
+      },
       status: "PENDING",
       submissionDate: "2024-02-01T00:00:00",
       dueDate: "2024-03-01T00:00:00",

@@ -1,110 +1,197 @@
 {
-    "databaseChangeLog": [
-      {
-        "changeSet": {
-          "id": "RecommendationRequest-1",
-          "author": "MikeP",
-          "preConditions": [
-            {
-              "onFail": "MARK_RAN"
-            },
-            {
-              "not": [
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "RequestType-1",
+        "author": "MikeP",
+        "preConditions": [
+          {
+            "onFail": "MARK_RAN"
+          },
+          {
+            "not": [
+              {
+                "tableExists": {
+                  "tableName": "REQUESTTYPE"
+                }
+              }
+            ]
+          }
+        ],
+        "changes": [
+          {
+            "createTable": {
+              "columns": [
                 {
-                  "tableExists": {
-                    "tableName": "RECOMMENDATIONREQUEST"
+                  "column": {
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "primaryKeyName": "REQUESTTYPE_PK"
+                    },
+                    "name": "ID",
+                    "type": "BIGINT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "REQUEST_TYPE",
+                    "type": "VARCHAR(255)"
+                  }
+                }
+              ],
+              "tableName": "REQUESTTYPE"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "RecommendationRequest-1",
+        "author": "MikeP",
+        "preConditions": [
+          {
+            "onFail": "MARK_RAN"
+          },
+          {
+            "not": [
+              {
+                "tableExists": {
+                  "tableName": "RECOMMENDATIONREQUEST"
+                }
+              }
+            ]
+          }
+        ],
+        "changes": [
+          {
+            "createTable": {
+              "columns": [
+                {
+                  "column": {
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "primaryKeyName": "RECOMMENDATIONREQUEST_PK"
+                    },
+                    "name": "ID",
+                    "type": "BIGINT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "REQUESTER_ID",
+                    "type": "BIGINT",
+                    "constraints": {
+                      "foreignKeyName": "RECOMMENDATIONREQUEST_REQUESTER_ID_FK",
+                      "references": "USERS(ID)",
+                      "onDelete": "RESTRICT",
+                      "onUpdate": "RESTRICT"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "PROFESSOR_ID",
+                    "type": "BIGINT",
+                    "constraints": {
+                      "foreignKeyName": "RECOMMENDATIONREQUEST_PROFESSOR_ID_FK",
+                      "references": "USERS(ID)",
+                      "onDelete": "RESTRICT",
+                      "onUpdate": "RESTRICT"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "RECOMMENDATION_TYPE",
+                    "type": "VARCHAR(255)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "DETAILS",
+                    "type": "VARCHAR(255)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "STATUS",
+                    "type": "VARCHAR(255)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "SUBMISSION_DATE",
+                    "type": "TIMESTAMP"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "COMPLETION_DATE",
+                    "type": "TIMESTAMP"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "DUE_DATE",
+                    "type": "TIMESTAMP"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "LAST_MODIFIED_DATE",
+                    "type": "TIMESTAMP"
+                  }
+                }
+              ],
+              "tableName": "RECOMMENDATIONREQUEST"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "RecommendationRequest-2",
+        "author": "YourName",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "RECOMMENDATIONREQUEST",
+              "columns": [
+                {
+                  "column": {
+                    "name": "REQUEST_TYPE_ID",
+                    "type": "BIGINT",
+                    "constraints": {
+                      "nullable": true
+                    }
                   }
                 }
               ]
             }
-          ],
-          "changes": [
-            {
-              "createTable": {
-                "columns": [
-                  {
-                    "column": {
-                      "autoIncrement": true,
-                      "constraints": {
-                        "primaryKey": true,
-                        "primaryKeyName": "RECOMMENDATIONREQUEST_PK"
-                      },
-                      "name": "ID",
-                      "type": "BIGINT"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "REQUESTER_ID",
-                      "type": "BIGINT",
-                      "constraints": {
-                        "foreignKeyName": "RECOMMENDATIONREQUEST_REQUESTER_ID_FK",
-                        "references": "USERS(ID)",
-                        "onDelete": "RESTRICT",
-                        "onUpdate": "RESTRICT"
-                      }
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "PROFESSOR_ID",
-                      "type": "BIGINT",
-                      "constraints": {
-                        "foreignKeyName": "RECOMMENDATIONREQUEST_PROFESSOR_ID_FK",
-                        "references": "USERS(ID)",
-                        "onDelete": "RESTRICT",
-                        "onUpdate": "RESTRICT"
-                      }
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "RECOMMENDATION_TYPE",
-                      "type": "VARCHAR(255)"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "DETAILS",
-                      "type": "VARCHAR(255)"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "STATUS",
-                      "type": "VARCHAR(255)"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "SUBMISSION_DATE",
-                      "type": "TIMESTAMP"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "COMPLETION_DATE",
-                      "type": "TIMESTAMP"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "DUE_DATE",
-                      "type": "TIMESTAMP"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "LAST_MODIFIED_DATE",
-                      "type": "TIMESTAMP"
-                    }
-                  }
-                ],
-                "tableName": "RECOMMENDATIONREQUEST"
-              }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "RECOMMENDATIONREQUEST_REQUEST_TYPE_ID_FK",
+              "baseTableName": "RECOMMENDATIONREQUEST",
+              "baseColumnNames": "REQUEST_TYPE_ID",
+              "referencedTableName": "REQUESTTYPE",
+              "referencedColumnNames": "ID",
+              "onDelete": "RESTRICT",
+              "onUpdate": "RESTRICT"
             }
-          ]
-        }
+          },
+          {
+            "dropColumn": {
+              "tableName": "RECOMMENDATIONREQUEST",
+              "columnName": "RECOMMENDATION_TYPE"
+            }
+          }
+        ]
       }
-    ]
-  }
+    }
+  ]
+}
