@@ -26,6 +26,6 @@ describe("HomePage tests", () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-    await screen.findByText(/Hello, world!/);
+    await screen.findByText(/Recommendation Request Manager/);
   });
 });
