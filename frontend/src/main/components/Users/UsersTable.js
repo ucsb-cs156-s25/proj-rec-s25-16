@@ -2,30 +2,8 @@ import OurTable, { ButtonColumn } from "main/components/OurTable";
 import { useBackendMutation } from "main/utils/useBackend";
 
 export default function UsersTable({ users }) {
-  // Stryker disable all : hard to test for query caching
-  function cellToAxiosParamsToggleStudent(cell) {
-    return {
-      url: "/api/admin/users/toggleStudent",
-      method: "POST",
-      params: {
-        id: cell.row.values.id,
-      },
-    };
-  }
-
-  const toggleStudentMutation = useBackendMutation(
-    cellToAxiosParamsToggleStudent,
-    {},
-    ["/api/admin/users"],
-  );
-  // Stryker enable all
-
-  // Stryker disable next-line all : TODO try to make a good test for this
-  const toggleStudentCallback = async (cell) => {
-    toggleStudentMutation.mutate(cell);
-  };
-
   //toggleAdmin
+  // Stryker disable next-line all : TODO try to make a good test for this
   function cellToAxiosParamsToggleAdmin(cell) {
     return {
       url: "/api/admin/users/toggleAdmin",
@@ -99,11 +77,6 @@ export default function UsersTable({ users }) {
       id: "professor",
       accessor: (row, _rowIndex) => String(row.professor), // hack needed for boolean values to show up
     },
-    {
-      Header: "Student",
-      id: "student",
-      accessor: (row, _rowIndex) => String(row.student), // hack needed for boolean values to show up
-    },
   ];
 
   const buttonColumn = [
@@ -113,12 +86,6 @@ export default function UsersTable({ users }) {
       "Toggle Professor",
       "success",
       toggleProfessorCallback,
-      "UsersTable",
-    ),
-    ButtonColumn(
-      "Toggle Student",
-      "danger",
-      toggleStudentCallback,
       "UsersTable",
     ),
   ];

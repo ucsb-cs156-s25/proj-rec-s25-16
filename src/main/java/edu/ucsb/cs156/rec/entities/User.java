@@ -37,7 +37,5 @@ public class User {
   @Builder.Default
   private Boolean admin=false;
   @Builder.Default
-  private Boolean student=true;
-  @Builder.Default
   private Boolean professor=false;
 }
