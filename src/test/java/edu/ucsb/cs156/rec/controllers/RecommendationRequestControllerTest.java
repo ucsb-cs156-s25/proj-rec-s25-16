@@ -6,6 +6,7 @@ import edu.ucsb.cs156.rec.repositories.UserRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -741,5 +742,54 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
         Map<String, Object> json = responseToJson(response);
         assertEquals("EntityNotFoundException", json.get("type"));
         assertEquals("RecommendationRequest with id 67 not found", json.get("message"));
+    }
+
+    @WithMockUser(roles = { "ADMIN" })
+    @Test
+    public void admin_can_get_all_recommendation_requests() throws Exception {
+        User requester  = User.builder().id(1L).email("requester@example.com").build();
+        User professor  = User.builder().id(2L).email("professor@example.com").build();
+
+        RecommendationRequest rec1 = RecommendationRequest.builder()
+                .id(22L)
+                .requester(requester)
+                .professor(professor)
+                .recommendationType("PhDprogram")
+                .details("Details for rec1")
+                .status("PENDING")
+                .completionDate(null)
+                .dueDate(LocalDateTime.parse("2025-06-01T00:00:00"))
+                .submissionDate(LocalDateTime.parse("2025-05-01T00:00:00"))
+                .lastModifiedDate(LocalDateTime.parse("2025-05-15T00:00:00"))
+                .build();
+
+        RecommendationRequest rec2 = RecommendationRequest.builder()
+                .id(67L)
+                .requester(requester)
+                .professor(professor)
+                .recommendationType("Internship")
+                .details("Details for rec2")
+                .status("COMPLETED")
+                .completionDate(LocalDateTime.parse("2025-05-20T00:00:00"))
+                .dueDate(LocalDateTime.parse("2025-06-15T00:00:00"))
+                .submissionDate(LocalDateTime.parse("2025-05-05T00:00:00"))
+                .lastModifiedDate(LocalDateTime.parse("2025-05-20T00:00:00"))
+                .build();
+
+        List<RecommendationRequest> mockRequests = Arrays.asList(rec1, rec2);
+        when(recommendationRequestRepository.findAll()).thenReturn(mockRequests);
+
+        MvcResult response = mockMvc.perform(
+                get("/api/recommendationrequest/admin/all")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // assert
+        verify(recommendationRequestRepository, times(1)).findAll();
+
+        String expectedJson = mapper.writeValueAsString(mockRequests);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
     }
 }
