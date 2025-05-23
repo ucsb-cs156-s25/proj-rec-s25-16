@@ -46,8 +46,7 @@ function RecommendationRequestForm({
 
     getProfessors();
     getRequestTypes();
-  });
-
+  }, []);
   const navigate = useNavigate();
 
   // For explanation, see: https://stackoverflow.com/questions/3143070/javascript-regex-iso-datetime
@@ -115,15 +114,15 @@ function RecommendationRequestForm({
       <Row>
         <Col>
           <Form.Group className="mb-3">
-            <Form.Label htmlFor="recommendationType">
+            <Form.Label htmlFor="requestType_id">
               Recommendation Type
             </Form.Label>
             <Form.Select
               data-testid="RecommendationRequestForm-recommendationType"
-              id="recommendationType"
+              id="requestType_id"
               type="string"
-              isInvalid={Boolean(errors.recommendationType)}
-              {...register("recommendationType", {
+              isInvalid={Boolean(errors.requestType_id)}
+              {...register("requestType_id", {
                 required: "Please select a recommendation type",
               })}
               defaultValue=""
@@ -137,7 +136,7 @@ function RecommendationRequestForm({
                   {recommendationTypes.map((recommendationType) => (
                     <option
                       key={recommendationType.id}
-                      value={recommendationType.requestType}
+                      value={recommendationType.id}
                     >
                       {recommendationType.requestType}
                     </option>
@@ -148,11 +147,11 @@ function RecommendationRequestForm({
                   No recommendation types available, use Other in details
                 </option>
               )}
-              <option value="Other">Other</option>
+              <option value="OTHER">Other</option>
             </Form.Select>
-            {errors.recommendationType && (
+            {errors.requestType_id && (
               <Form.Control.Feedback type="invalid">
-                {errors.recommendationType.message}
+                {errors.requestType_id.message}
               </Form.Control.Feedback>
             )}
           </Form.Group>
