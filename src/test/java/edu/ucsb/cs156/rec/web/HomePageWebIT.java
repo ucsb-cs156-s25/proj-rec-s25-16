@@ -50,11 +50,9 @@ public class HomePageWebIT {
         String url = String.format("http://localhost:%d/", port);
         page.navigate(url);
 
-        // ← updated to match your <HomePage /> copy
-        assertThat(
-          page.getByText(
-            "This is a webapp that assists students and professors in creating and managing recommendation letter requests."
-          )
-        ).isVisible();
+
+        assertThat(page.getByText("This is a webapp that assists students and professors in creating and managing recommendation letter requests."))
+                .isVisible();
     }
 }
+

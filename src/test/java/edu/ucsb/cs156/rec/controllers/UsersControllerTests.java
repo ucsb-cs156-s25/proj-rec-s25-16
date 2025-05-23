@@ -217,44 +217,6 @@ public class UsersControllerTests extends ControllerTestCase {
     assertEquals("User with id 15 not found", json.get("message"));
   }
 
-  @WithMockUser(roles = { "ADMIN", "USER" })
-  @Test
-  public void admin_can_toggle_student() throws Exception{
-     User user1 = User.builder().email("joegaucho@ucsb.edu").id(17L).student(false).build();
-     when(userRepository.findById(eq(17L))).thenReturn(Optional.of(user1));
-     MvcResult response = mockMvc.perform(post("/api/admin/users/toggleStudent?id=17").with(csrf()))
-             .andExpect(status().isOk()).andReturn();
-    
-    verify(userRepository, times(1)).findById(17L);
-    Map<String, Object> json = responseToJson(response);
-    assertEquals("User with id 17 has toggled student status to true", json.get("message"));
-  }
-  @WithMockUser(roles = { "ADMIN", "USER" })
-  @Test
-  public void admin_can_toggle_student_flip() throws Exception{
-     User user1 = User.builder().email("joegaucho@ucsb.edu").id(17L).student(true).build();
-     when(userRepository.findById(eq(17L))).thenReturn(Optional.of(user1));
-     MvcResult response = mockMvc.perform(post("/api/admin/users/toggleStudent?id=17").with(csrf()))
-             .andExpect(status().isOk()).andReturn();
-    
-    verify(userRepository, times(1)).findById(17L);
-    Map<String, Object> json = responseToJson(response);
-    assertEquals("User with id 17 has toggled student status to false", json.get("message"));
-  }
-
-  @WithMockUser(roles = { "ADMIN", "USER" })
-  @Test
-  public void admin_cant_toggle_student_nonexistent() throws Exception{
-     User user1 = User.builder().email("joegaucho@ucsb.edu").id(17L).build();
-     when(userRepository.findById(eq(17L))).thenReturn(Optional.of(user1));
-     MvcResult response = mockMvc.perform(post("/api/admin/users/toggleStudent?id=15").with(csrf()))
-             .andExpect(status().is(404)).andReturn();
-    
-    verify(userRepository, times(1)).findById(15L);
-    Map<String, Object> json = responseToJson(response);
-    assertEquals("User with id 15 not found", json.get("message"));
-  }
-
   @WithMockUser(roles = { "USER" })
   @Test
   public void non_admin_can_get_all_professors() throws Exception{
@@ -268,7 +230,6 @@ public class UsersControllerTests extends ControllerTestCase {
     assertTrue(responseString.contains("Phill Conrad"));
     assertTrue(responseString.contains("1"));
     assertFalse(responseString.contains("email"));
-
   }
 
 }
