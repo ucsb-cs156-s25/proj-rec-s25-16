@@ -18,13 +18,14 @@ import com.microsoft.playwright.Playwright;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration")
 public class HomePageWebIT {
+
     @Value("${app.playwright.headless:true}")
     private boolean runHeadless;
 
-    @LocalServerPort
+    @LocalServerPort 
     private int port;
 
     private Browser browser;
@@ -32,8 +33,9 @@ public class HomePageWebIT {
 
     @BeforeEach
     public void setup() {
-        browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions().setHeadless(runHeadless));
-
+        browser = Playwright.create()
+            .chromium()
+            .launch(new BrowserType.LaunchOptions().setHeadless(runHeadless));
         BrowserContext context = browser.newContext();
         page = context.newPage();
     }
@@ -48,8 +50,11 @@ public class HomePageWebIT {
         String url = String.format("http://localhost:%d/", port);
         page.navigate(url);
 
-        assertThat(page.getByText("This is a webapp containing a bunch of different Spring Boot/React examples."))
-                .isVisible();
+        // ← updated to match your <HomePage /> copy
+        assertThat(
+          page.getByText(
+            "This is a webapp that assists students and professors in creating and managing recommendation letter requests."
+          )
+        ).isVisible();
     }
-
 }

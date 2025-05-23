@@ -41,7 +41,10 @@ public class RecommendationRequest {
   @JoinColumn(name = "professor_id", referencedColumnName = "id", insertable = true, updatable = true)
   private User professor;
 
-  private String recommendationType;
+  @ManyToOne
+  @JoinColumn(name = "request_type_id", referencedColumnName = "id", insertable = true, updatable = true)
+  private RequestType requestType;
+  
   private String details;
   private String status;
 

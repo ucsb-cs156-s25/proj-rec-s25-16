@@ -1,47 +1,44 @@
 package edu.ucsb.cs156.rec.controllers;
 
-import edu.ucsb.cs156.rec.ControllerTestCase;
-import edu.ucsb.cs156.rec.repositories.UserRepository;
 import edu.ucsb.cs156.rec.testconfig.TestConfig;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.aspectj.lang.annotation.Before;
-
-@ActiveProfiles("development")
-@WebMvcTest(controllers = CSRFController.class)
+@SpringBootTest
 @Import(TestConfig.class)
-public class CSRFControllerTests extends ControllerTestCase {
+@AutoConfigureMockMvc
+@ActiveProfiles("development")
+@TestPropertySource(properties = {
+    "spring.datasource.url=jdbc:h2:mem:testdb",
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.h2.console.enabled=false"
+})
+public class CSRFControllerTests {
 
-  @MockBean
-  UserRepository userRepository;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Test
-  public void csrf_returns_ok() throws Exception {
-    MvcResult response = mockMvc.perform(get("/csrf"))
-              .andExpect(status().isOk())
-              .andReturn();
+    @Test
+    public void csrf_returns_ok() throws Exception {
+        String body = mockMvc.perform(get("/csrf"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-    String responseString = response.getResponse().getContentAsString();
-    assertTrue(responseString.contains("parameterName"));
-    assertTrue(responseString.contains("_csrf"));
-    assertTrue(responseString.contains("headerName"));
-    assertTrue(responseString.contains("X-XSRF-TOKEN"));
-
-  }
-
+        assertTrue(body.contains("parameterName"));
+        assertTrue(body.contains("_csrf"));
+        assertTrue(body.contains("headerName"));
+        assertTrue(body.contains("X-XSRF-TOKEN"));
+    }
 }

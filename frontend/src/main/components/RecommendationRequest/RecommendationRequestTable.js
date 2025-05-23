@@ -107,7 +107,7 @@ export default function RecommendationRequestTable({
     },
     {
       Header: "Recommendation Type",
-      accessor: "recommendationType",
+      accessor: "requestType.requestType",
     },
     {
       Header: "Details",
