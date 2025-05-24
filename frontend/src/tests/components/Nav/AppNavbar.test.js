@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
 import { currentUserFixtures } from "fixtures/currentUserFixtures";
@@ -261,5 +262,67 @@ describe("AppNavbar tests", () => {
     expect(screen.queryByText("Pending Requests")).not.toBeInTheDocument();
     expect(screen.queryByText("Completed Requests")).not.toBeInTheDocument();
     expect(screen.queryByText("Statistics")).not.toBeInTheDocument();
+  });
+
+  test("Admin dropdown does NOT render for normal user", () => {
+    const normalUser = currentUserFixtures.userOnly;
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <AppNavbar currentUser={normalUser} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(
+      screen.queryByTestId("appnavbar-admin-dropdown"),
+    ).not.toBeInTheDocument();
+  });
+
+  test("Admin dropdown does NOT render when not logged in", () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <AppNavbar currentUser={null} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(
+      screen.queryByTestId("appnavbar-admin-dropdown"),
+    ).not.toBeInTheDocument();
+  });
+
+  test("'Users' link is visible only for ROLE_ADMIN", async () => {
+    // ---------- render as ADMIN ----------
+    const { rerender } = render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <AppNavbar currentUser={currentUserFixtures.adminUser} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // open the dropdown (click the "Admin" toggle)
+    userEvent.click(screen.getByRole("button", { name: /admin/i }));
+
+    // now “Users” should appear somewhere in the document
+    expect(await screen.findByText("Users")).toBeInTheDocument();
+
+    // ---------- render as PROFESSOR ----------
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <AppNavbar currentUser={currentUserFixtures.professorUser} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    // open dropdown again
+    userEvent.click(screen.getByRole("button", { name: /admin/i }));
+
+    // “Users” should NOT be found
+    expect(screen.queryByText("Users")).not.toBeInTheDocument();
   });
 });

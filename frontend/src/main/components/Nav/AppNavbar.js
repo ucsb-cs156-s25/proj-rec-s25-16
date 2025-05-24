@@ -9,13 +9,19 @@ export default function AppNavbar({
   doLogout,
   currentUrl = window.location.href,
 }) {
-  var oauthLogin = systemInfo?.oauthLogin || "/oauth2/authorization/google";
+  const oauthLogin = systemInfo?.oauthLogin || "/oauth2/authorization/google";
+  const isAdmin = hasRole(currentUser, "ROLE_ADMIN");
+  const isProfessor = hasRole(currentUser, "ROLE_PROFESSOR");
+  const isStudent = hasRole(currentUser, "ROLE_STUDENT");
+  const isLoggedIn = currentUser && currentUser.loggedIn;
+
   return (
     <>
       {(currentUrl.startsWith("http://localhost:3000") ||
         currentUrl.startsWith("http://127.0.0.1:3000")) && (
         <AppNavbarLocalhost url={currentUrl} />
       )}
+
       <Navbar
         expand="xl"
         variant="dark"
@@ -27,39 +33,37 @@ export default function AppNavbar({
           <Navbar.Brand as={Link} to="/">
             Rec Manager
           </Navbar.Brand>
-
           <Navbar.Toggle />
 
           <Nav className="me-auto">
             {systemInfo?.springH2ConsoleEnabled && (
-              <>
-                <Nav.Link href="/h2-console">H2Console</Nav.Link>
-              </>
+              <Nav.Link href="/h2-console">H2Console</Nav.Link>
             )}
             {systemInfo?.showSwaggerUILink && (
-              <>
-                <Nav.Link href="/swagger-ui/index.html">Swagger</Nav.Link>
-              </>
+              <Nav.Link href="/swagger-ui/index.html">Swagger</Nav.Link>
             )}
           </Nav>
 
-          <>
-            {/* be sure that each NavDropdown has a unique id and data-testid  */}
-          </>
-
           <Navbar.Collapse className="justify-content-between">
             <Nav className="mr-auto">
-              {hasRole(currentUser, "ROLE_ADMIN") && (
+              {(isAdmin || isProfessor) && (
                 <NavDropdown
                   title="Admin"
                   id="appnavbar-admin-dropdown"
                   data-testid="appnavbar-admin-dropdown"
                 >
-                  <NavDropdown.Item href="/admin/users">Users</NavDropdown.Item>
+                  {isAdmin && (
+                    <NavDropdown.Item href="/admin/users">
+                      Users
+                    </NavDropdown.Item>
+                  )}
+                  <NavDropdown.Item as={Link} to="/settings/requesttypes">
+                    Request Types
+                  </NavDropdown.Item>
                 </NavDropdown>
               )}
-              {(hasRole(currentUser, "ROLE_PROFESSOR") ||
-                hasRole(currentUser, "ROLE_STUDENT")) && (
+
+              {(isProfessor || isStudent) && (
                 <>
                   <Nav.Link as={Link} to="/requests/pending">
                     Pending Requests
@@ -75,7 +79,7 @@ export default function AppNavbar({
             </Nav>
 
             <Nav className="ml-auto">
-              {currentUser && currentUser.loggedIn ? (
+              {isLoggedIn ? (
                 <>
                   <Navbar.Text className="me-3" as={Link} to="/profile">
                     Welcome, {currentUser.root.user.email}
