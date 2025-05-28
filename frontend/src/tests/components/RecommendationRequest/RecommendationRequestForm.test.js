@@ -72,41 +72,17 @@ describe("RecommendationRequestForm tests", () => {
 
     expect(await screen.findByText(/Create/)).toBeInTheDocument();
 
-    if (
-      usersFixtures &&
-      usersFixtures.twoProfessors &&
-      usersFixtures.twoProfessors.length > 0
-    ) {
-      expect(
-        await screen.findByRole("option", {
-          name: usersFixtures.twoProfessors[0].fullName,
-        }),
-      ).toBeInTheDocument();
-    } else {
-      expect(
-        await screen.findByRole("option", {
-          name: /Loading professors...|No professors available/i,
-        }),
-      ).toBeInTheDocument();
-    }
+    expect(
+      await screen.findByRole("option", {
+        name: usersFixtures.twoProfessors[0].fullName,
+      }),
+    ).toBeInTheDocument();
 
-    if (
-      recommendationTypeFixtures &&
-      recommendationTypeFixtures.fourTypes &&
-      recommendationTypeFixtures.fourTypes.length > 0
-    ) {
-      expect(
-        await screen.findByRole("option", {
-          name: recommendationTypeFixtures.fourTypes[0].requestType,
-        }),
-      ).toBeInTheDocument();
-    } else {
-      expect(
-        await screen.findByRole("option", {
-          name: /Loading types...|No recommendation types available/i,
-        }),
-      ).toBeInTheDocument();
-    }
+    expect(
+      await screen.findByRole("option", {
+        name: recommendationTypeFixtures.fourTypes[0].requestType,
+      }),
+    ).toBeInTheDocument();
   });
 
   test("renders correctly when passing in initialContents", async () => {
@@ -121,17 +97,11 @@ describe("RecommendationRequestForm tests", () => {
     );
     expect(await screen.findByTestId(`${testId}-id`)).toBeInTheDocument();
     // Assertions for dropdown population can still be made here, as fetch will be called
-    if (
-      usersFixtures &&
-      usersFixtures.twoProfessors &&
-      usersFixtures.twoProfessors.length > 0
-    ) {
-      expect(
-        await screen.findByRole("option", {
-          name: usersFixtures.twoProfessors[0].fullName,
-        }),
-      ).toBeInTheDocument();
-    }
+    expect(
+      await screen.findByRole("option", {
+        name: usersFixtures.twoProfessors[0].fullName,
+      }),
+    ).toBeInTheDocument();
   });
 
   test("that the correct error messages appear in console when fetch calls fail in component", async () => {

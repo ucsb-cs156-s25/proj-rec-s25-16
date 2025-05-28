@@ -6,7 +6,6 @@ import { MemoryRouter } from "react-router-dom";
 import { currentUserFixtures } from "fixtures/currentUserFixtures";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
-import { hasRole } from "main/utils/currentUser";
 
 const mockedNavigate = jest.fn();
 
