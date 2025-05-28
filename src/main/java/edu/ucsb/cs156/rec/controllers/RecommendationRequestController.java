@@ -44,6 +44,17 @@ public class RecommendationRequestController extends ApiController {
     RequestTypeRepository requestTypeRepository;
 
     /**
+     * This method returns a list of all Recommendation Requests requested
+     * @return a list of all Recommendation Requests requested by all students
+     */
+    @Operation(summary = "An admin can list all Recommendation Requests")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin/all")
+    public Iterable<RecommendationRequest> getAllRecommendationRequests() {
+        return recommendationRequestRepository.findAll();
+    }
+
+    /**
      * Any admin can delete a RecommendationRequest
      * 
      * @param id the id of the RecommendationRequest to delete

@@ -36,4 +36,11 @@ public interface RecommendationRequestRepository extends CrudRepository<Recommen
    */
   Iterable<RecommendationRequest> findAllByProfessorIdAndStatus(Long professor_id, String status);
 
+  /**
+   * Find all recommendation requests as an admin.
+   *
+   * @return a list of all recommendation requests.
+   */
+  Iterable<RecommendationRequest> findAll();
+
 }

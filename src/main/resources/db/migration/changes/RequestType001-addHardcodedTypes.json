@@ -1,0 +1,55 @@
+{
+    "databaseChangeLog": [
+      {
+        "changeSet": {
+          "id": "RequestType001-add-hardcoded-types",
+          "author": "YourName",
+          "preConditions": [
+            {
+              "onFail": "CONTINUE"
+            },
+            {
+              "tableExists": {
+                "tableName": "REQUESTTYPE"
+              }
+            }
+          ],
+          "changes": [
+            {
+              "sql": {
+                "sql": "INSERT INTO REQUESTTYPE (REQUEST_TYPE) SELECT 'CS Department BS/MS program' WHERE NOT EXISTS (SELECT 1 FROM REQUESTTYPE WHERE REQUEST_TYPE = 'CS Department BS/MS program')"
+              }
+            },
+            {
+              "sql": {
+                "sql": "INSERT INTO REQUESTTYPE (REQUEST_TYPE) SELECT 'Scholarship or Fellowship' WHERE NOT EXISTS (SELECT 1 FROM REQUESTTYPE WHERE REQUEST_TYPE = 'Scholarship or Fellowship')"
+              }
+            },
+            {
+              "sql": {
+                "sql": "INSERT INTO REQUESTTYPE (REQUEST_TYPE) SELECT 'MS program (other than CS Dept BS/MS)' WHERE NOT EXISTS (SELECT 1 FROM REQUESTTYPE WHERE REQUEST_TYPE = 'MS program (other than CS Dept BS/MS)')"
+              }
+            },
+            {
+              "sql": {
+                "sql": "INSERT INTO REQUESTTYPE (REQUEST_TYPE) SELECT 'PhD program' WHERE NOT EXISTS (SELECT 1 FROM REQUESTTYPE WHERE REQUEST_TYPE = 'PhD program')"
+              }
+            },
+            {
+              "sql": {
+                "sql": "INSERT INTO REQUESTTYPE (REQUEST_TYPE) SELECT 'Other' WHERE NOT EXISTS (SELECT 1 FROM REQUESTTYPE WHERE REQUEST_TYPE = 'Other')"
+              }
+            }
+          ],
+          "rollback": [
+            {
+              "sql": {
+                "sql": "DELETE FROM REQUESTTYPE WHERE REQUEST_TYPE IN ('CS Department BS/MS program', 'Scholarship or Fellowship', 'MS program (other than CS Dept BS/MS)', 'PhD program', 'Other')"
+              }
+            }
+          ],
+          "comment": "Add hardcoded request types, checking for each one to see if it is already there before loading it"
+        }
+      }
+    ]
+  }
