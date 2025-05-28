@@ -1,50 +1,50 @@
 {
-    "databaseChangeLog": [
-      {
-        "changeSet": {
-          "id": "RequestType-1",
-          "author": "MikeP",
-          "preConditions": [
-            {
-              "onFail": "MARK_RAN"
-            },
-            {
-              "not": [
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "RequestType-1",
+        "author": "MikeP",
+        "preConditions": [
+          {
+            "onFail": "MARK_RAN"
+          },
+          {
+            "not": [
+              {
+                "tableExists": {
+                  "tableName": "REQUESTTYPE"
+                }
+              }
+            ]
+          }
+        ],
+        "changes": [
+          {
+            "createTable": {
+              "columns": [
                 {
-                  "tableExists": {
-                    "tableName": "REQUESTTYPE"
+                  "column": {
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "primaryKeyName": "REQUESTTYPE_PK"
+                    },
+                    "name": "ID",
+                    "type": "BIGINT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "REQUEST_TYPE",
+                    "type": "VARCHAR(255)"
                   }
                 }
-              ]
+              ],
+              "tableName": "REQUESTTYPE"
             }
-          ],
-          "changes": [
-            {
-              "createTable": {
-                "columns": [
-                  {
-                    "column": {
-                      "autoIncrement": true,
-                      "constraints": {
-                        "primaryKey": true,
-                        "primaryKeyName": "REQUESTTYPE_PK"
-                      },
-                      "name": "ID",
-                      "type": "BIGINT"
-                    }
-                  },
-                  {
-                    "column": {
-                      "name": "REQUEST_TYPE",
-                      "type": "VARCHAR(255)"
-                    }
-                  }
-                ],
-                "tableName": "REQUESTTYPE"
-              }
-            }
-          ]
-        }
+          }
+        ]
       }
-    ]
-  }
+    }
+  ]
+}
