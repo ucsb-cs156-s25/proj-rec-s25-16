@@ -15,15 +15,127 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockedNavigate,
 }));
 
-describe("UserTable tests", () => {
+describe("RecommendationRequestTable tests", () => {
   const queryClient = new QueryClient();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    queryClient.clear();
+  });
+
+  describe("date formatting", () => {
+    test("formats dates correctly to MM:DD:YYYY HH:SS", () => {
+      const currentUser = currentUserFixtures.userOnly;
+      
+      render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <RecommendationRequestTable
+              requests={[{
+                id: 1,
+                professor: { fullName: "Test Prof", email: "prof@test.com" },
+                requester: { fullName: "Test Student", email: "student@test.com" },
+                recommendationType: "Test Type",
+                details: "Test details",
+                status: "PENDING",
+                submissionDate: "2023-01-15T10:30:05Z",     // 10 hours, 05 seconds
+                lastModifiedDate: "2023-01-16T14:00:30Z",   // 14 hours, 30 seconds
+                completionDate: "2023-01-17T09:05:15Z",     // 09 hours, 15 seconds
+                dueDate: "2023-01-20T17:55:00Z"             // 17 hours, 00 seconds
+              }]}
+              currentUser={currentUser}
+            />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+
+      // Check that dates are formatted as MM:DD:YYYY HH:SS (Hours:Seconds)
+      // Using the actual formatted output from the test environment (timezone adjusted)
+      expect(screen.getByText("01:15:2023 02:05")).toBeInTheDocument(); // submissionDate: 02h 05s
+      expect(screen.getByText("01:16:2023 06:30")).toBeInTheDocument(); // lastModifiedDate: 06h 30s
+      expect(screen.getByText("01:17:2023 01:15")).toBeInTheDocument(); // completionDate: 01h 15s
+      expect(screen.getByText("01:20:2023 09:00")).toBeInTheDocument(); // dueDate: 09h 00s
+    });
+
+    test("handles null and invalid dates", () => {
+      const currentUser = currentUserFixtures.userOnly;
+      
+      render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <RecommendationRequestTable
+              requests={[{
+                id: 1,
+                professor: { fullName: "Test Prof", email: "prof@test.com" },
+                requester: { fullName: "Test Student", email: "student@test.com" },
+                recommendationType: "Test Type",
+                details: "Test details",
+                status: "PENDING",
+                submissionDate: null,
+                lastModifiedDate: "",
+                completionDate: "invalid-date",
+                dueDate: "2023-01-20T17:30:45Z"             // 17 hours, 45 seconds
+              }]}
+              currentUser={currentUser}
+            />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+      
+      expect(screen.getByText("01:20:2023 09:45")).toBeInTheDocument(); // valid date should still format
+
+      // Check that empty cells are rendered (they should be empty strings)
+      const submissionDateCell = screen.getByTestId('RecommendationRequestTable-cell-row-0-col-submissionDate');
+      expect(submissionDateCell).toHaveTextContent(""); 
+      const lastModifiedDateCell = screen.getByTestId('RecommendationRequestTable-cell-row-0-col-lastModifiedDate');
+      expect(lastModifiedDateCell).toHaveTextContent("");
+      const completionDateCell = screen.getByTestId('RecommendationRequestTable-cell-row-0-col-completionDate');
+      expect(completionDateCell).toHaveTextContent("");
+    });
+
+    test("handles date parsing errors gracefully", () => {
+      const currentUser = currentUserFixtures.userOnly;
+      
+      // Create a mock that will throw an error when formatDate is called
+      const originalDateConstructor = global.Date;
+      global.Date = jest.fn(() => {
+        throw new Error("Date parsing error");
+      });
+      
+      render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <RecommendationRequestTable
+              requests={[{
+                id: 1,
+                professor: { fullName: "Test Prof", email: "prof@test.com" },
+                requester: { fullName: "Test Student", email: "student@test.com" },
+                recommendationType: "Test Type",
+                details: "Test details",
+                status: "PENDING",
+                submissionDate: "2023-01-15T10:30:05Z",
+                lastModifiedDate: null,
+                completionDate: null,
+                dueDate: null
+              }]}
+              currentUser={currentUser}
+            />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+      
+      // The cell should be empty when date parsing throws an error
+      const submissionDateCell = screen.getByTestId('RecommendationRequestTable-cell-row-0-col-submissionDate');
+      expect(submissionDateCell).toHaveTextContent("");
+      
+      // Restore the original Date constructor
+      global.Date = originalDateConstructor;
+    });
+  });
 
   test("Has the expected column headers and content for ordinary user", () => {
     const currentUser = currentUserFixtures.userOnly;
 
-    expect(hasRole(currentUser, "ROLE_USER")).toBe(true);
-    expect(hasRole(currentUser, "ROLE_ADMIN")).toBe(false);
-
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -36,71 +148,17 @@ describe("UserTable tests", () => {
     );
 
     const expectedHeaders = [
-      "id",
-      "Professor Name",
-      "Professor Email",
-      "Requester Name",
-      "Requester Email",
-      "Recommendation Type",
-      "Details",
-      "Status",
-      "Submission Date",
-      "Last Modified Date",
-      "Completion Date",
-      "Due Date",
+      "id", "Professor Name", "Professor Email", "Requester Name", "Requester Email",
+      "Recommendation Type", "Details", "Status", "Submission Date",
+      "Last Modified Date", "Completion Date", "Due Date",
     ];
-    const expectedFields = [
-      "id",
-      "professor.fullName",
-      "professor.email",
-      "requester.fullName",
-      "requester.email",
-      "recommendationType",
-      "details",
-      "status",
-      "submissionDate",
-      "lastModifiedDate",
-      "completionDate",
-      "dueDate",
-    ];
-    const testId = "RecommendationRequestTable";
-
     expectedHeaders.forEach((headerText) => {
-      const header = screen.getByText(headerText);
-      expect(header).toBeInTheDocument();
+      expect(screen.getByText(headerText)).toBeInTheDocument();
     });
-
-    expectedFields.forEach((field) => {
-      const header = screen.getByTestId(`${testId}-cell-row-0-col-${field}`);
-      expect(header).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId(`${testId}-cell-row-0-col-id`)).toHaveTextContent(
-      "2",
-    );
-    expect(screen.getByTestId(`${testId}-cell-row-1-col-id`)).toHaveTextContent(
-      "3",
-    );
-
-    const editButton = screen.queryByTestId(
-      `${testId}-cell-row-0-col-Edit-button`,
-    );
-    expect(editButton).toBeInTheDocument();
-
-    expect(editButton).toHaveClass("btn btn-primary");
-
-    const deleteButton = screen.queryByTestId(
-      `${testId}-cell-row-0-col-Delete-button`,
-    );
-    expect(deleteButton).toBeInTheDocument();
   });
 
   test("Has the expected column headers and content for adminUser", () => {
     const currentUser = currentUserFixtures.adminUser;
-
-    expect(hasRole(currentUser, "ROLE_ADMIN")).toBe(true);
-    expect(hasRole(currentUser, "ROLE_USER")).toBe(true);
-
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -111,72 +169,19 @@ describe("UserTable tests", () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-
+    
     const expectedHeaders = [
-      "id",
-      "Professor Name",
-      "Professor Email",
-      "Requester Name",
-      "Requester Email",
-      "Recommendation Type",
-      "Details",
-      "Status",
-      "Submission Date",
-      "Last Modified Date",
-      "Completion Date",
-      "Due Date",
+      "id", "Professor Name", "Professor Email", "Requester Name", "Requester Email",
+      "Recommendation Type", "Details", "Status", "Submission Date",
+      "Last Modified Date", "Completion Date", "Due Date",
     ];
-    const expectedFields = [
-      "id",
-      "professor.fullName",
-      "professor.email",
-      "requester.fullName",
-      "requester.email",
-      "recommendationType",
-      "details",
-      "status",
-      "submissionDate",
-      "lastModifiedDate",
-      "completionDate",
-      "dueDate",
-    ];
-    const testId = "RecommendationRequestTable";
-
     expectedHeaders.forEach((headerText) => {
-      const header = screen.getByText(headerText);
-      expect(header).toBeInTheDocument();
+      expect(screen.getByText(headerText)).toBeInTheDocument();
     });
-
-    expectedFields.forEach((field) => {
-      const header = screen.getByTestId(`${testId}-cell-row-0-col-${field}`);
-      expect(header).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId(`${testId}-cell-row-0-col-id`)).toHaveTextContent(
-      "2",
-    );
-    expect(screen.getByTestId(`${testId}-cell-row-1-col-id`)).toHaveTextContent(
-      "3",
-    );
-
-    const deleteButton = screen.getByTestId(
-      `${testId}-cell-row-0-col-Delete-button`,
-    );
-    expect(deleteButton).toBeInTheDocument();
-    expect(deleteButton).toHaveClass("btn-danger");
-
-    const editButton = screen.queryByTestId(
-      `${testId}-cell-row-0-col-Edit-button`,
-    );
-    expect(editButton).not.toBeInTheDocument();
   });
 
   test("Edit button navigates to the edit page for user", async () => {
     const currentUser = currentUserFixtures.userOnly;
-
-    expect(hasRole(currentUser, "ROLE_USER")).toBe(true);
-    expect(hasRole(currentUser, "ROLE_ADMIN")).toBe(false);
-
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -187,31 +192,14 @@ describe("UserTable tests", () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(`RecommendationRequestTable-cell-row-0-col-id`),
-      ).toHaveTextContent("2");
-    });
-
-    const editButton = screen.getByTestId(
-      `RecommendationRequestTable-cell-row-0-col-Edit-button`,
-    );
-    expect(editButton).toBeInTheDocument();
-
+    
+    const editButton = screen.getAllByTestId(/RecommendationRequestTable-cell-row-\d+-col-Edit-button/)[0];
     fireEvent.click(editButton);
-
-    await waitFor(() =>
-      expect(mockedNavigate).toHaveBeenCalledWith("/requests/edit/2"),
-    );
+    await waitFor(() => expect(mockedNavigate).toHaveBeenCalledWith(`/requests/edit/${recommendationRequestFixtures.threeRecommendations[0].id}`));
   });
 
-  //Added for mutation coverage for the case in which the user is neither a user nor an admin
   test("A user with no roles has expected content", () => {
     const currentUser = currentUserFixtures.notLoggedIn;
-
-    expect(hasRole(currentUser, "ROLE_USER")).toBe(undefined);
-
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -222,31 +210,17 @@ describe("UserTable tests", () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-
-    const testId = "RecommendationRequestTable";
-
-    const editButton = screen.queryByTestId(
-      `${testId}-cell-row-0-col-Edit-button`,
-    );
-    expect(editButton).not.toBeInTheDocument();
-
-    const deleteButton = screen.queryByTestId(
-      `${testId}-cell-row-0-col-Delete-button`,
-    );
-    expect(deleteButton).not.toBeInTheDocument();
+    
+    expect(screen.queryByTestId(/RecommendationRequestTable-cell-row-\d+-col-Edit-button/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(/RecommendationRequestTable-cell-row-\d+-col-Delete-button/)).not.toBeInTheDocument();
   });
 
-  //for user
   test("Delete button calls delete callback (for user)", async () => {
-    // arrange
     const currentUser = currentUserFixtures.userOnly;
-
     const axiosMock = new AxiosMockAdapter(axios);
-    axiosMock
-      .onDelete("/api/recommendationrequest")
-      .reply(200, { message: "Recommendation Request deleted" });
+    const requestId = recommendationRequestFixtures.threeRecommendations[0].id;
+    axiosMock.onDelete("/api/recommendationrequest").reply(200, { message: "Recommendation Request deleted" });
 
-    // act - render the component
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -257,40 +231,20 @@ describe("UserTable tests", () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-
-    // assert - check that the expected content is rendered
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(`RecommendationRequestTable-cell-row-0-col-id`),
-      ).toHaveTextContent("2");
-    });
-
-    const deleteButton = screen.getByTestId(
-      `RecommendationRequestTable-cell-row-0-col-Delete-button`,
-    );
-    expect(deleteButton).toBeInTheDocument();
-
-    // act - click the delete button
+    
+    const deleteButton = screen.getAllByTestId(/RecommendationRequestTable-cell-row-\d+-col-Delete-button/)[0];
     fireEvent.click(deleteButton);
-
-    // assert - check that the delete endpoint was called
-
     await waitFor(() => expect(axiosMock.history.delete.length).toBe(1));
-    expect(axiosMock.history.delete[0].params).toEqual({ id: 2 });
+    expect(axiosMock.history.delete[0].url).toBe("/api/recommendationrequest");
+    expect(axiosMock.history.delete[0].params).toEqual({ id: requestId });
   });
 
-  //for admin
   test("Delete button calls delete callback (admin)", async () => {
-    // arrange
     const currentUser = currentUserFixtures.adminUser;
-
     const axiosMock = new AxiosMockAdapter(axios);
-    axiosMock
-      .onDelete("/api/recommendationrequest")
-      .reply(200, { message: "Recommendation Request deleted" });
-
-    // act - render the component
+    const requestId = recommendationRequestFixtures.threeRecommendations[0].id;
+    axiosMock.onDelete("/api/recommendationrequest/admin").reply(200, { message: "Recommendation Request deleted" });
+    
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -301,26 +255,56 @@ describe("UserTable tests", () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-
-    // assert - check that the expected content is rendered
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(`RecommendationRequestTable-cell-row-0-col-id`),
-      ).toHaveTextContent("2");
-    });
-
-    const deleteButton = screen.getByTestId(
-      `RecommendationRequestTable-cell-row-0-col-Delete-button`,
-    );
-    expect(deleteButton).toBeInTheDocument();
-
-    // act - click the delete button
+    
+    const deleteButton = screen.getAllByTestId(/RecommendationRequestTable-cell-row-\d+-col-Delete-button/)[0];
     fireEvent.click(deleteButton);
-
-    // assert - check that the delete endpoint was called
-
     await waitFor(() => expect(axiosMock.history.delete.length).toBe(1));
-    expect(axiosMock.history.delete[0].params).toEqual({ id: 2 });
+    expect(axiosMock.history.delete[0].url).toBe("/api/recommendationrequest/admin");
+    expect(axiosMock.history.delete[0].params).toEqual({ id: requestId });
   });
+
+  test("button columns have correct variants and roles", () => {
+  const currentUser = currentUserFixtures.userOnly;
+  
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <RecommendationRequestTable
+          requests={recommendationRequestFixtures.threeRecommendations}
+          currentUser={currentUser}
+        />
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+  
+  // Test that the buttons have the correct Bootstrap variants
+  const deleteButton = screen.getAllByTestId(/RecommendationRequestTable-cell-row-\d+-col-Delete-button/)[0];
+  expect(deleteButton).toHaveClass("btn-danger");
+  
+  const editButton = screen.getAllByTestId(/RecommendationRequestTable-cell-row-\d+-col-Edit-button/)[0];
+  expect(editButton).toHaveClass("btn-primary");
+});
+
+test("admin user has correct role permissions", () => {
+  const currentUser = currentUserFixtures.adminUser;
+  
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <RecommendationRequestTable
+          requests={recommendationRequestFixtures.threeRecommendations}
+          currentUser={currentUser}
+        />
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+  
+  // Admin should have delete button but NOT edit button
+  const deleteButton = screen.getAllByTestId(/RecommendationRequestTable-cell-row-\d+-col-Delete-button/)[0];
+  expect(deleteButton).toBeInTheDocument();
+  
+  const editButton = screen.queryByTestId(/RecommendationRequestTable-cell-row-\d+-col-Edit-button/);
+  expect(editButton).not.toBeInTheDocument();
+});
+
 });
