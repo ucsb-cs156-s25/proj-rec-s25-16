@@ -16,19 +16,19 @@ import { useQueryClient } from "react-query";
 // Helper function to format dates as MM:DD:YYYY HH:SS (Hours:Seconds as per requirement)
 const formatDate = (dateString) => {
   if (!dateString) return "";
-  
+
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "";
-    
+
     // Use local time zone (getMonth, getDate, etc.) - this matches test environment
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     // Stryker disable next-line StringLiteral: Zero padding required for date formatting
-    const day = String(date.getDate()).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
     const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    
+    const hours = String(date.getHours()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
     return `${month}:${day}:${year} ${hours}:${seconds}`;
   } catch (error) {
     // Stryker disable next-line BlockStatement: Error handling fallback

@@ -30,9 +30,13 @@ describe("PendingRequestsPage tests", () => {
 
   test("Renders expected content", async () => {
     const queryClient = new QueryClient();
-    
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
+
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.userOnly);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
     axiosMock.onGet("/api/recommendationrequest/requester/all").reply(200, []);
 
     render(
@@ -40,7 +44,7 @@ describe("PendingRequestsPage tests", () => {
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     await screen.findByRole("heading", { level: 1, name: "Pending Requests" });
@@ -48,21 +52,29 @@ describe("PendingRequestsPage tests", () => {
 
   test("Renders pending requests for professor", async () => {
     const queryClient = new QueryClient();
-    
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.professorUser);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
-    axiosMock.onGet("/api/recommendationrequest/professor/all").reply(200, recommendationRequestFixtures.mixedRequests);
+
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.professorUser);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/recommendationrequest/professor/all")
+      .reply(200, recommendationRequestFixtures.mixedRequests);
 
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { level: 1, name: "Pending Requests" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 1, name: "Pending Requests" }),
+      ).toBeInTheDocument();
     });
 
     // Updated expectation - the count might be different due to multiple API calls
@@ -96,9 +108,13 @@ describe("PendingRequestsPage tests", () => {
 
   test("Renders empty table when no completed requests", async () => {
     const queryClient = new QueryClient();
-    
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.professorUser);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
+
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.professorUser);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
     axiosMock.onGet("/api/recommendationrequest/professor/all").reply(200, []);
 
     render(
@@ -106,7 +122,7 @@ describe("PendingRequestsPage tests", () => {
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     await waitFor(() => {
@@ -124,17 +140,23 @@ describe("PendingRequestsPage tests", () => {
 
   test("Renders pending requests for student", async () => {
     const queryClient = new QueryClient();
-    
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.studentUser);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
-    axiosMock.onGet("/api/recommendationrequest/requester/all").reply(200, recommendationRequestFixtures.mixedRequests);
+
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.studentUser);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/recommendationrequest/requester/all")
+      .reply(200, recommendationRequestFixtures.mixedRequests);
 
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     await waitFor(() => {
@@ -173,9 +195,13 @@ describe("PendingRequestsPage tests", () => {
 
   test("Renders empty table when no pending requests for student", async () => {
     const queryClient = new QueryClient();
-    
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.studentUser);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
+
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.studentUser);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
     axiosMock.onGet("/api/recommendationrequest/requester/all").reply(200, []);
 
     render(
@@ -183,7 +209,7 @@ describe("PendingRequestsPage tests", () => {
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     await waitFor(() => {
@@ -203,9 +229,15 @@ describe("PendingRequestsPage tests", () => {
     const _restoreConsole = mockConsole();
     let currentRequests = [...recommendationRequestFixtures.mixedRequests];
 
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.professorUser);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
-    axiosMock.onGet("/api/recommendationrequest/professor/all").reply(() => [200, currentRequests]);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.professorUser);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/recommendationrequest/professor/all")
+      .reply(() => [200, currentRequests]);
     axiosMock.onPut("/api/recommendationrequest/professor").reply(() => {
       currentRequests = currentRequests.map((request) =>
         request.id === 8 ? { ...request, status: "COMPLETED" } : request,
@@ -224,7 +256,7 @@ describe("PendingRequestsPage tests", () => {
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     expect(axiosMock.history.get.length).toBeGreaterThanOrEqual(3);
@@ -275,17 +307,23 @@ describe("PendingRequestsPage tests", () => {
 
   test("Dropdown menu does not appear for student user on pending requests page", async () => {
     const queryClient = new QueryClient();
-    
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.studentUser);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
-    axiosMock.onGet("/api/recommendationrequest/requester/all").reply(200, recommendationRequestFixtures.mixedRequests);
+
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.studentUser);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/recommendationrequest/requester/all")
+      .reply(200, recommendationRequestFixtures.mixedRequests);
 
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     expect(axiosMock.history.get.length).toBeGreaterThanOrEqual(3);
@@ -306,7 +344,7 @@ describe("PendingRequestsPage tests", () => {
 
   test("Date formatting is applied in pending requests table", async () => {
     const queryClient = new QueryClient();
-    
+
     // Test with specific date to verify formatting
     const testRequest = {
       id: 99,
@@ -318,23 +356,31 @@ describe("PendingRequestsPage tests", () => {
       submissionDate: "2023-01-15T10:30:00",
       lastModifiedDate: "2023-01-16T14:45:00",
       completionDate: null, // pending requests might not have completion date
-      dueDate: "2023-01-20T17:00:00"
+      dueDate: "2023-01-20T17:00:00",
     };
 
-    axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.professorUser);
-    axiosMock.onGet("/api/systemInfo").reply(200, systemInfoFixtures.showingNeither);
-    axiosMock.onGet("/api/recommendationrequest/professor/all").reply(200, [testRequest]);
+    axiosMock
+      .onGet("/api/currentUser")
+      .reply(200, apiCurrentUserFixtures.professorUser);
+    axiosMock
+      .onGet("/api/systemInfo")
+      .reply(200, systemInfoFixtures.showingNeither);
+    axiosMock
+      .onGet("/api/recommendationrequest/professor/all")
+      .reply(200, [testRequest]);
 
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
           <PendingRequestsPage />
         </MemoryRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { level: 1, name: "Pending Requests" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 1, name: "Pending Requests" }),
+      ).toBeInTheDocument();
     });
 
     // Wait for table to render and data to load
