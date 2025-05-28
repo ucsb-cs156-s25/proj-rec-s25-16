@@ -793,3 +793,4 @@ public class RecommendationRequestControllerTest extends ControllerTestCase {
         assertEquals(expectedJson, responseString);
     }
 }
+
