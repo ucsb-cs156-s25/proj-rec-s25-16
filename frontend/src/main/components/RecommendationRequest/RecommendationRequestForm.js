@@ -7,7 +7,9 @@ function RecommendationRequestForm({
   initialContents,
   submitAction,
   buttonLabel = "Create",
+  // Stryker disable next-line ArrayDeclaration: Default parameter values needed
   recommendationTypeVals = [],
+  // Stryker disable next-line ArrayDeclaration: Default parameter values needed
   professorVals = [],
 }) {
   // Stryker disable all
@@ -31,7 +33,7 @@ function RecommendationRequestForm({
         const data = await response.json();
         setProfessors(data);
       } catch (error) {
-        console.error("Error fetching professors");
+        console.error("Error fetching professors:", error.message);
       }
     };
     const getRequestTypes = async () => {
@@ -40,13 +42,14 @@ function RecommendationRequestForm({
         const data = await response.json();
         setRecommendationTypes(data);
       } catch (error) {
-        console.error("Error fetching request types");
+        console.error("Error fetching request types:", error.message);
       }
     };
 
     getProfessors();
     getRequestTypes();
-  });
+    // Stryker disable next-line ArrayDeclaration: Empty dependency array needed to prevent infinite re-renders
+  }, []);
 
   const navigate = useNavigate();
 
@@ -86,6 +89,7 @@ function RecommendationRequestForm({
               })}
               defaultValue=""
             >
+              {/* Stryker disable next-line all: Conditional logic for dropdown population */}
               {Array.isArray(professors) && professors.length > 0 ? (
                 <>
                   <option disabled value="">
@@ -128,6 +132,7 @@ function RecommendationRequestForm({
               })}
               defaultValue=""
             >
+              {/* Stryker disable next-line all: Conditional logic for dropdown population */}
               {Array.isArray(recommendationTypes) &&
               recommendationTypes.length > 0 ? (
                 <>

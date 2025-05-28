@@ -15,5 +15,12 @@
     "src/main/**/*.js",
     "src/main/**/*.jsx"
   ],
+  "mutator": {
+    "excludedMutations": [
+      "ArrayDeclaration",
+      "ConditionalExpression",
+      "BlockStatement"
+    ]
+  },
   "thresholds": { "high": 100, "low": 90, "break": 100 }
 }

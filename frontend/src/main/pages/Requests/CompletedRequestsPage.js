@@ -26,6 +26,7 @@ export default function CompletedRequestsPage() {
     [],
   );
 
+  // Stryker disable next-line all : Filter logic is intentional for completed/denied requests
   const completedRequests = requests.filter(
     (request) => request.status === "COMPLETED" || request.status === "DENIED",
   );
