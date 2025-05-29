@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsersController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">proj-rec</a> &gt; <a href="index.source.html" class="el_package">edu.ucsb.cs156.rec.controllers</a> &gt; <span class="el_source">UsersController.java</span></div><h1>UsersController.java</h1><pre class="source lang-java linenums">package edu.ucsb.cs156.rec.controllers;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import edu.ucsb.cs156.rec.entities.RecommendationRequest;
+import edu.ucsb.cs156.rec.entities.User;
+import edu.ucsb.cs156.rec.repositories.UserRepository;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.web.bind.annotation.RequestParam;
+
+import edu.ucsb.cs156.rec.errors.EntityNotFoundException;
+
+/**
+ * This is a REST controller for getting information about the users.
+ * 
+ * These endpoints are only accessible to users with the role &quot;ROLE_ADMIN&quot;.
+ */
+
+@Tag(name=&quot;User information (admin only except for /professors)&quot;)
+@RequestMapping(&quot;/api/admin/users&quot;)
+@RestController
+<span class="fc" id="L42">public class UsersController extends ApiController {</span>
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    ObjectMapper mapper;
+
+    /**
+     * This method returns a list of all users.  Accessible only to users with the role &quot;ROLE_ADMIN&quot;.
+     * @return a list of all users
+     * @throws JsonProcessingException if there is an error processing the JSON
+     */
+    @Operation(summary= &quot;Get a list of all users&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @GetMapping(&quot;&quot;)
+    public ResponseEntity&lt;String&gt; users()
+            throws JsonProcessingException {
+<span class="fc" id="L59">        Iterable&lt;User&gt; users = userRepository.findAll();</span>
+<span class="fc" id="L60">        String body = mapper.writeValueAsString(users);</span>
+<span class="fc" id="L61">        return ResponseEntity.ok().body(body);</span>
+    }
+
+    /**
+     * This method returns a list of all Recommendation Requests requested by current student.
+     * @return a list of all Recommendation Requests requested by the current user
+     */
+    @Operation(summary = &quot;List all professors&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
+    @GetMapping(&quot;/professors&quot;)
+    public Iterable&lt;Map&lt;String, Object&gt;&gt; allProfessors(
+    ) {
+<span class="fc" id="L73">        Iterable&lt;User&gt; professors = userRepository.professorIsTrue();</span>
+        // to add privacy, only return professor_id and professor_name
+<span class="fc" id="L75">        List&lt;Map&lt;String, Object&gt;&gt; limited_list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (User professor : professors) {</span>
+<span class="fc" id="L77">            Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L78">            map.put(&quot;id&quot;, professor.getId());</span>
+<span class="fc" id="L79">            map.put(&quot;fullName&quot;, professor.getFullName());</span>
+<span class="fc" id="L80">            limited_list.add(map);</span>
+<span class="fc" id="L81">        }</span>
+<span class="fc" id="L82">        return limited_list;</span>
+    }
+
+    @Operation(summary= &quot;Get user by id&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @GetMapping(&quot;/get&quot;)
+    public User users(
+        @Parameter(name=&quot;id&quot;, description=&quot;Long, id number of user to get&quot;, example=&quot;1&quot;, required=true) @RequestParam Long id)
+            throws JsonProcessingException {
+<span class="fc" id="L91">        User user = userRepository.findById(id).orElseThrow(() -&gt; new EntityNotFoundException(User.class, id));</span>
+        
+<span class="fc" id="L93">        return user;</span>
+    }
+
+    @Operation(summary= &quot;Delete a user (admin)&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @DeleteMapping(&quot;/delete&quot;)
+    public Object deleteUser_Admin(
+        @Parameter(name=&quot;id&quot;, description=&quot;Long, id number of user to delete&quot;, example=&quot;1&quot;, required=true) @RequestParam Long id) {
+<span class="fc" id="L101">        User user = userRepository.findById(id).orElseThrow(() -&gt; new EntityNotFoundException(User.class, id));</span>
+<span class="fc" id="L102">        userRepository.delete(user);</span>
+<span class="fc" id="L103">        return genericMessage(&quot;User with id %s has been deleted.&quot;.formatted(id));</span>
+    }
+
+    @Operation(summary = &quot;Toggle the admin field&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @PostMapping(&quot;/toggleAdmin&quot;)
+    public Object toggleAdmin( @Parameter(name = &quot;id&quot;, description = &quot;Long, id number of user to toggle their admin field&quot;, example = &quot;1&quot;, required = true) @RequestParam Long id){
+<span class="fc" id="L110">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L111">        .orElseThrow(() -&gt; new EntityNotFoundException(User.class, id));</span>
+
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        user.setAdmin(!user.getAdmin());</span>
+<span class="fc" id="L114">        userRepository.save(user);</span>
+<span class="fc" id="L115">        return genericMessage(&quot;User with id %s has toggled admin status to %s&quot;.formatted(id, user.getAdmin()));</span>
+    }
+
+    @Operation(summary = &quot;Toggle the professor field&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @PostMapping(&quot;/toggleProfessor&quot;)
+    public Object toggleProfessor( @Parameter(name = &quot;id&quot;, description = &quot;Long, id number of user to toggle their professor field&quot;, example = &quot;1&quot;, required = true) @RequestParam Long id){
+<span class="fc" id="L122">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L123">        .orElseThrow(() -&gt; new EntityNotFoundException(User.class, id));</span>
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        user.setProfessor(!user.getProfessor());</span>
+<span class="fc" id="L126">        userRepository.save(user);</span>
+<span class="fc" id="L127">        return genericMessage(&quot;User with id %s has toggled professor status to %s&quot;.formatted(id, user.getProfessor()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
