@@ -61,8 +61,7 @@ export default function AppNavbar({
                   </NavDropdown.Item>
                 </NavDropdown>
               )}
-              {(hasRole(currentUser, "ROLE_PROFESSOR") ||
-                hasRole(currentUser, "ROLE_STUDENT")) && (
+              {hasRole(currentUser, "ROLE_USER") && (
                 <>
                   <Nav.Link as={Link} to="/requests/pending">
                     Pending Requests

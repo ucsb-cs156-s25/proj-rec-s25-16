@@ -88,7 +88,6 @@ public class RoleInterceptorTests extends ControllerTestCase{
         credentials.add(new SimpleGrantedAuthority("ROLE_USER"));
         credentials.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         credentials.add(new SimpleGrantedAuthority("ROLE_PROFESSOR"));
-        credentials.add(new SimpleGrantedAuthority("ROLE_STUDENT"));
 
         OAuth2User user = new DefaultOAuth2User(credentials,values,"email");
         Authentication auth = new OAuth2AuthenticationToken(user, credentials, "google");

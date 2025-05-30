@@ -70,7 +70,9 @@ describe("PendingRequestsPage tests", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Pending Requests")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 1, name: "Pending Requests" }),
+      ).toBeInTheDocument();
     });
 
     expect(axiosMock.history.get.length).toBe(3);

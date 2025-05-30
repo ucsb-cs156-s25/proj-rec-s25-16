@@ -14,7 +14,6 @@ const usersFixtures = {
       hostedDomain: null,
       admin: false,
       professor: true,
-      student: false,
     },
     {
       id: 1,
@@ -30,7 +29,6 @@ const usersFixtures = {
       hostedDomain: "ucsb.edu",
       admin: true,
       professor: true,
-      student: false,
     },
   ],
   threeUsers: [
@@ -48,7 +46,6 @@ const usersFixtures = {
       hostedDomain: "ucsb.edu",
       admin: true,
       professor: false,
-      student: false,
     },
     {
       id: 2,
@@ -64,7 +61,6 @@ const usersFixtures = {
       hostedDomain: null,
       admin: false,
       professor: false,
-      student: true,
     },
     {
       id: 3,
@@ -80,7 +76,6 @@ const usersFixtures = {
       hostedDomain: null,
       admin: false,
       professor: true,
-      student: false,
     },
   ],
 };
