@@ -4,6 +4,8 @@ import edu.ucsb.cs156.rec.models.SystemInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,10 +15,13 @@ import org.springframework.stereotype.Service;
  * 
  */
 
-<span class="fc" id="L16">@Slf4j</span>
+<span class="fc" id="L18">@Slf4j</span>
 @Service(&quot;systemInfo&quot;)
 @ConfigurationProperties
-<span class="fc" id="L19">public class SystemInfoServiceImpl extends SystemInfoService {</span>
+@PropertySources(
+  @PropertySource(&quot;classpath:git.properties&quot;)
+)
+<span class="fc" id="L24">public class SystemInfoServiceImpl extends SystemInfoService {</span>
   
   @Value(&quot;${spring.h2.console.enabled:false}&quot;)
   private boolean springH2ConsoleEnabled;
@@ -37,7 +42,7 @@ import org.springframework.stereotype.Service;
   private String commitId;
 
   public static String githubUrl(String repo, String commit) {
-<span class="fc bfc" id="L40" title="All 4 branches covered.">    return commit != null &amp;&amp; repo != null ? repo + &quot;/commit/&quot; + commit : null;</span>
+<span class="fc bfc" id="L45" title="All 4 branches covered.">    return commit != null &amp;&amp; repo != null ? repo + &quot;/commit/&quot; + commit : null;</span>
   }
 
 
@@ -47,17 +52,17 @@ import org.springframework.stereotype.Service;
    * @return the system information
    */
   public SystemInfo getSystemInfo() {
-<span class="fc" id="L50">    SystemInfo si = SystemInfo.builder()</span>
-<span class="fc" id="L51">        .springH2ConsoleEnabled(this.springH2ConsoleEnabled)</span>
-<span class="fc" id="L52">        .showSwaggerUILink(this.showSwaggerUILink)</span>
-<span class="fc" id="L53">        .oauthLogin(this.oauthLogin)</span>
-<span class="fc" id="L54">        .sourceRepo(this.sourceRepo)</span>
-<span class="fc" id="L55">        .commitMessage(this.commitMessage)</span>
-<span class="fc" id="L56">        .commitId(this.commitId)</span>
-<span class="fc" id="L57">        .githubUrl(githubUrl(this.sourceRepo, this.commitId))</span>
-<span class="fc" id="L58">        .build();</span>
-<span class="fc" id="L59">    log.info(&quot;getSystemInfo returns {}&quot;, si);</span>
-<span class="fc" id="L60">    return si;</span>
+<span class="fc" id="L55">    SystemInfo si = SystemInfo.builder()</span>
+<span class="fc" id="L56">        .springH2ConsoleEnabled(this.springH2ConsoleEnabled)</span>
+<span class="fc" id="L57">        .showSwaggerUILink(this.showSwaggerUILink)</span>
+<span class="fc" id="L58">        .oauthLogin(this.oauthLogin)</span>
+<span class="fc" id="L59">        .sourceRepo(this.sourceRepo)</span>
+<span class="fc" id="L60">        .commitMessage(this.commitMessage)</span>
+<span class="fc" id="L61">        .commitId(this.commitId)</span>
+<span class="fc" id="L62">        .githubUrl(githubUrl(this.sourceRepo, this.commitId))</span>
+<span class="fc" id="L63">        .build();</span>
+<span class="fc" id="L64">    log.info(&quot;getSystemInfo returns {}&quot;, si);</span>
+<span class="fc" id="L65">    return si;</span>
   }
 
 }
