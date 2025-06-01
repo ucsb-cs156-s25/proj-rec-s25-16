@@ -11,4 +11,4 @@ proj-rec,edu.ucsb.cs156.rec.services,SystemInfoServiceImpl,0,52,0,4,0,14,0,6,0,4
 proj-rec,edu.ucsb.cs156.rec.services,SystemInfoService,0,3,0,0,0,1,0,1,0,1
 proj-rec,edu.ucsb.cs156.rec.errors,EntityNotFoundException,0,17,0,0,0,3,0,1,0,1
 proj-rec,edu.ucsb.cs156.rec.interceptors,RoleInterceptorConfig,0,9,0,0,0,3,0,2,0,2
-proj-rec,edu.ucsb.cs156.rec.interceptors,RoleInterceptor,0,96,0,12,0,22,0,10,0,4
+proj-rec,edu.ucsb.cs156.rec.interceptors,RoleInterceptor,0,103,0,12,0,23,0,10,0,4
